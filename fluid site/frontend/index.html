@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daniel Guo</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<div id="card">
+
+  <!-- ASCII name from upload -->
+  <div class="ascii-wrap"><pre class="ascii-name">██████╗░░█████╗░███╗░░██╗██╗███████╗██╗░░░░░  ░██████╗░██╗░░░██╗░█████╗░
+██╔══██╗██╔══██╗████╗░██║██║██╔════╝██║░░░░░  ██╔════╝░██║░░░██║██╔══██╗
+██║░░██║███████║██╔██╗██║██║█████╗░░██║░░░░░  ██║░░██╗░██║░░░██║██║░░██║
+██║░░██║██╔══██║██║╚████║██║██╔══╝░░██║░░░░░  ██║░░╚██╗██║░░░██║██║░░██║
+██████╔╝██║░░██║██║░╚███║██║███████╗███████╗  ╚██████╔╝╚██████╔╝╚█████╔╝
+╚═════╝░╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚══════╝╚══════╝  ░╚═════╝░░╚═════╝░░╚════╝░</pre></div>
+
+  <!-- Bio -->
+  <div class="section-title">// BIO</div>
+  <div class="bio-line">Mathematics/FARM @ University of Waterloo</div>
+  <div class="bio-line">Interested in Machine Learning &amp; Full Stack Development</div>
+
+  <!-- Links with pixel art icons -->
+  <div class="links-row">
+    <a class="link-btn" href="https://linkedin.com/in/your-profile" target="_blank" rel="noopener">
+      <canvas id="liIcon" width="16" height="16"></canvas>LinkedIn
+    </a>
+    <a class="link-btn" href="https://github.com/your-username" target="_blank" rel="noopener">
+      <canvas id="ghIcon" width="16" height="16"></canvas>GitHub
+    </a>
+    <a class="link-btn" href="mailto:danielguo2007@gmail.com">
+      <canvas id="emIcon" width="16" height="16"></canvas>Email
+    </a>
+  </div>
+
+  <hr class="rule">
+
+  <!-- Skills -->
+  <div class="section-title">// SKILLS</div>
+
+  <div class="skill-group">
+    <div class="skill-key">LANGUAGES</div>
+    <div class="tags">
+      <span class="tag">SQL</span>
+      <span class="tag">Java</span>
+      <span class="tag">Python</span>
+      <span class="tag">C / C++</span>
+      <span class="tag">C#</span>
+      <span class="tag">JavaScript</span>
+      <span class="tag">Bash</span>
+    </div>
+  </div>
+
+  <div class="skill-group">
+    <div class="skill-key">LIBRARIES &amp; FRAMEWORKS</div>
+    <div class="tags">
+      <span class="tag">Pandas</span>
+      <span class="tag">NumPy</span>
+      <span class="tag">Matplotlib</span>
+      <span class="tag">TensorFlow / Keras</span>
+      <span class="tag">Vite / React</span>
+      <span class="tag">MongoDB</span>
+      <span class="tag">Django</span>
+    </div>
+  </div>
+
+  <div class="skill-group">
+    <div class="skill-key">TOOLS</div>
+    <div class="tags">
+      <span class="tag">Excel</span>
+      <span class="tag">Git</span>
+      <span class="tag">Docker</span>
+      <span class="tag">VS Code</span>
+      <span class="tag">QuickBooks</span>
+      <span class="tag">Unreal Engine</span>
+      <span class="tag">Unity</span>
+      <span class="tag">Soldering</span>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- Interests -->
+  <div class="section-title">// INTERESTS</div>
+  <div class="skill-group">
+    <div class="tags">
+      <span class="tag">Coding</span>
+      <span class="tag">Cooking &amp; Baking</span>
+      <span class="tag">Rock Climbing</span>
+      <span class="tag">Novels</span>
+      <span class="tag">Music</span>
+      <span class="tag">Movies</span>
+    </div>
+  </div>
+
+  <div class="footer-line">[ move mouse over background to interact · click to burst ]</div>
+</div>
+
+<script src="js/icons/pixelGrids.js"></script>
+<script src="js/icons/drawIcons.js"></script>
+<script src="js/fluid/constants.js"></script>
+<script src="js/fluid/grid.js"></script>
+<script src="js/fluid/solver.js"></script>
+<script src="js/fluid/render.js"></script>
+<script src="js/fluid/input.js"></script>
+<script src="js/fluid/loop.js"></script>
+</body>
+</html>
