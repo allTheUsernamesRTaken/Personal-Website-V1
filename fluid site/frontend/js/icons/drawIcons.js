@@ -15,4 +15,5 @@
   drawIcon('liIcon', liGrid);
   drawIcon('ghIcon', ghGrid);
   drawIcon('emIcon', emGrid);
+  drawIcon('resIcon', resGrid);
 })();
