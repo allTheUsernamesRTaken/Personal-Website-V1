@@ -17,7 +17,8 @@
   height: 86vh;
   overflow-y: auto;
   overflow-x: hidden;
-  background: rgba(4, 5, 11, 0.93);
+  /* Card background opacity: change the last value (0.88) — lower = more transparent */
+  background: rgba(4, 5, 11, 0.85);
   border: 1px solid rgba(255,255,255,0.16);
   padding: 26px 28px 38px;
   color: #fff;

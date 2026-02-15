@@ -29,7 +29,6 @@ function isOverCard(e){
 }
 
 document.addEventListener('mousemove',e=>{
-  if(isOverCard(e)){prevCi=-1;prevCj=-1;return;}
   const{ci,cj}=getCell(e.clientX,e.clientY);
   if(prevCi<0){prevCi=ci;prevCj=cj;return;}
   const dvx=(ci-prevCi)*2.8,dvy=(cj-prevCj)*2.8;

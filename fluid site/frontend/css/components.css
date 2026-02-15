@@ -2,7 +2,7 @@
 .ascii-wrap {
   overflow-x: auto;
   overflow-y: hidden;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   scrollbar-width: none;
 }
 .ascii-wrap::-webkit-scrollbar { display: none; }
@@ -22,7 +22,7 @@
   font-size: 22px;
   letter-spacing: 0.2em;
   color: #fff;
-  margin: 22px 0 8px;
+  margin: 16px 0 8px;
   border-bottom: 1px solid rgba(255,255,255,0.13);
   padding-bottom: 3px;
 }
@@ -83,12 +83,13 @@ hr.rule {
   white-space: nowrap;
 }
 
-/* Footer */
-.footer-line {
-  margin-top: 30px;
+/* Hint line (below ASCII name) */
+.hint-line {
+  margin-top: 3px;
+  margin-bottom: 1px;
   font-family: 'VT323', monospace;
   font-size: 14px;
   color: rgba(255,255,255,0.22);
-  text-align: center;
+  text-align: left;
   letter-spacing: 0.1em;
 }
