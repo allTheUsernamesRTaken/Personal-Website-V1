@@ -38,12 +38,14 @@
 /* Links */
 .links-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 22px;
   margin: 12px 0 0;
   align-items: center;
 }
 .link-btn {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 7px;
   color: #fff;
@@ -53,9 +55,15 @@
   letter-spacing: 0.07em;
   opacity: 0.8;
   transition: opacity 0.1s;
+  min-width: 0;
 }
 .link-btn:hover { opacity: 1; text-decoration: underline; }
-.link-btn canvas { image-rendering: pixelated; display: block; }
+.link-btn canvas { image-rendering: pixelated; display: block; flex-shrink: 0; }
+.link-btn span { white-space: nowrap; }
+/* When card is narrow, allow link labels (e.g. Resume) to wrap to next line */
+@container card (max-width: 420px) {
+  .link-btn span { white-space: normal; word-break: break-word; }
+}
 
 /* Divider */
 hr.rule {

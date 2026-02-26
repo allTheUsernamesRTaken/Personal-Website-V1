@@ -28,13 +28,25 @@ function isOverCard(e){
   return e.target===card||card.contains(e.target);
 }
 
-document.addEventListener('mousemove',e=>{
-  const{ci,cj}=getCell(e.clientX,e.clientY);
+function applyMove(ci,cj){
   if(prevCi<0){prevCi=ci;prevCj=cj;return;}
   const dvx=(ci-prevCi)*2.8,dvy=(cj-prevCj)*2.8;
   const spd=Math.sqrt(dvx*dvx+dvy*dvy);
   if(spd>0.05) inject(ci,cj,dvx/spd,dvy/spd,INJ_DENS+spd*0.3);
   prevCi=ci;prevCj=cj;
+}
+
+function burstAt(ci,cj){
+  for(let a=0;a<360;a+=6){
+    const r=a*Math.PI/180;
+    inject(ci,cj,Math.cos(r),Math.sin(r),8);
+  }
+}
+
+/* Mouse: movement always injects; click bursts when not over card */
+document.addEventListener('mousemove',e=>{
+  const{ci,cj}=getCell(e.clientX,e.clientY);
+  applyMove(ci,cj);
 });
 
 document.addEventListener('mouseleave',()=>{prevCi=-1;prevCj=-1;});
@@ -42,8 +54,27 @@ document.addEventListener('mouseleave',()=>{prevCi=-1;prevCj=-1;});
 document.addEventListener('mousedown',e=>{
   if(isOverCard(e)) return;
   const{ci,cj}=getCell(e.clientX,e.clientY);
-  for(let a=0;a<360;a+=6){
-    const r=a*Math.PI/180;
-    inject(ci,cj,Math.cos(r),Math.sin(r),8);
-  }
+  burstAt(ci,cj);
 });
+
+/* Touch: same behavior for mobile — movement injects, touch burst */
+function getTouchCell(e){
+  if(!e.touches||!e.touches.length) return null;
+  const t=e.touches[0];
+  return getCell(t.clientX,t.clientY);
+}
+
+document.addEventListener('touchstart',e=>{
+  if(isOverCard(e)) return;
+  const cell=getTouchCell(e);
+  if(cell){ burstAt(cell.ci,cell.cj); prevCi=cell.ci; prevCj=cell.cj; }
+},{passive:true});
+
+document.addEventListener('touchmove',e=>{
+  if(isOverCard(e)) return;
+  const cell=getTouchCell(e);
+  if(cell){ applyMove(cell.ci,cell.cj); e.preventDefault(); }
+},{passive:false});
+
+document.addEventListener('touchend',()=>{prevCi=-1;prevCj=-1;});
+document.addEventListener('touchcancel',()=>{prevCi=-1;prevCj=-1;});

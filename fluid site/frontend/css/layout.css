@@ -17,6 +17,8 @@
   height: 86vh;
   overflow-y: auto;
   overflow-x: hidden;
+  container-type: inline-size;
+  container-name: card;
   /* Card background opacity: change the last value (0.88) — lower = more transparent */
   background: rgba(4, 5, 11, 0.85);
   border: 1px solid rgba(255,255,255,0.16);
