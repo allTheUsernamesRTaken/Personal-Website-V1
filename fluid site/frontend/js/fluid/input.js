@@ -32,7 +32,8 @@ function applyMove(ci,cj){
   if(prevCi<0){prevCi=ci;prevCj=cj;return;}
   const dvx=(ci-prevCi)*2.8,dvy=(cj-prevCj)*2.8;
   const spd=Math.sqrt(dvx*dvx+dvy*dvy);
-  if(spd>0.05) inject(ci,cj,dvx/spd,dvy/spd,INJ_DENS+spd*0.3);
+  const amt=INJ_DENS*3+spd*1.2;
+  if(spd>0.05) inject(ci,cj,dvx/spd,dvy/spd,amt);
   prevCi=ci;prevCj=cj;
 }
 
