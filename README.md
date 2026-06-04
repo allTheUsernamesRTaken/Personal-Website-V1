@@ -2,7 +2,7 @@
 
 My personal website. The background is a fluid sim made out of ASCII/block characters you can play with. Info card on top with bio, links, skills.
 
-Made the first version in high school so the code isn't fancy, plain HTML, CSS, JS.
+Made the first version in high school so the stack is a bit rudimentary, but I'm still proud of it, it's plain HTML, CSS, JS.
 
 ## Structure:
 
@@ -25,7 +25,7 @@ Script load order (bottom of `index.html`) matters. It's all one global scope, n
 
 ## How the fluid works:
 
-Didn't write the math, followed Jos Stam's stable fluids (papers below). Roughly how I get it:
+This follows Jos Stam's stable fluids (papers below):
 
 Screen is a grid of cells. Each cell holds how fast the fluid moves there (`vx`, `vy`) and how much smoke is in it (`dens`). Every frame `step()` in `solver.js` runs: add whatever the mouse injected, diffuse it out to neighbors a bit, project, advect, project again, vorticity confinement, then everything fades.
 
