@@ -1,4 +1,4 @@
-# Personal-Website-V1
+# ASCII Fluid Dynamics Simulator 
 
 My personal website. The background is a fluid sim made out of ASCII/block characters you can play with. Info card on top with bio, links, skills.
 
