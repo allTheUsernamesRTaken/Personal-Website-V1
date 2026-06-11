@@ -7,7 +7,7 @@ Made the first version in high school so the stack is a bit rudimentary, but I'm
 ## Structure:
 
 ```
-fluid site/frontend/
+fluid-site/frontend/
 ├── index.html              the page + the card
 ├── css/                    styling
 └── js/
