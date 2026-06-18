@@ -7,7 +7,7 @@ function computeCurl(){
       );
 }
 
-const CHARS=['░','░','▒','▒','▓','▓','█','■'];
+const CHARS=" .'`^\",:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$".split('');
 ctx.font=`${CW+2}px monospace`;
 ctx.textAlign='left';
 ctx.textBaseline='top';
@@ -30,8 +30,9 @@ function render(){
       const L=Math.min(8+d*52+spd*18+wrl*40,78);
       const alpha=Math.min(Math.pow(d*2.8+spd*0.8,1.4),1.0);
       ctx.fillStyle=`hsla(${H|0},${S|0}%,${L|0}%,${alpha.toFixed(2)})`;
-      const fill=Math.min(d*2.5+spd*0.4,0.999);
-      ctx.fillText(CHARS[Math.floor(fill*CHARS.length)],i*CW,py);
+      let fill=Math.min(d*2.5+spd*0.35,1.0);
+      fill=Math.pow(fill,1.5);
+      ctx.fillText(CHARS[Math.min(Math.floor(fill*CHARS.length),CHARS.length-1)],i*CW,py);
     }
   }
 }
