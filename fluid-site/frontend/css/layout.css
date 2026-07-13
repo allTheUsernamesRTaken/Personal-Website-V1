@@ -20,7 +20,7 @@
   container-type: inline-size;
   container-name: card;
   /* Card background opacity: change the last value - lower = more transparent */
-  background: rgba(4, 5, 11, 0.75);
+  background: rgba(4, 5, 11, 0.60);
   border: 1px solid rgba(255,255,255,0.16);
   padding: 26px 28px 38px;
   color: #fff;

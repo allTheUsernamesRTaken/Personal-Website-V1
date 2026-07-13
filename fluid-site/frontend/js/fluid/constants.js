@@ -4,13 +4,13 @@ const INJ_DENS   = 3.5;
 const INJ_VEL    = 6.0;
 const VISC       = 0.00008;
 const DIFF       = 0.00004;
-const FADE       = 0.997;
+const FADE       = 0.998;
 const VEL_DAMP   = 0.9998;
 const VORT       = 6.0;
 const ITER       = 16;
 const DT         = 0.16;
 
-const CW = 9, CH = 10;
+const CW = 11, CH = 12;
 const COLS = Math.min(Math.floor(window.innerWidth  / CW), 160);
 const ROWS = Math.min(Math.floor(window.innerHeight / CH), 100);
 

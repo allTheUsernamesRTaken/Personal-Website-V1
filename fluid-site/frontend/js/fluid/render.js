@@ -27,12 +27,13 @@ function render(){
       let H=Math.atan2(vyi,vxi)*(180/Math.PI);
       if(H<0)H+=360;
       const S=82+Math.min(spd*15,16);
-      const L=Math.min(8+d*52+spd*18+wrl*40,78);
-      const alpha=Math.min(Math.pow(d*2.8+spd*0.8,1.4),1.0);
+      const L=Math.min(12+d*65+spd*22+wrl*50,92);
+      const alpha=Math.min(Math.pow(d*2.8+spd*0.8,1.25),1.0);
       ctx.fillStyle=`hsla(${H|0},${S|0}%,${L|0}%,${alpha.toFixed(2)})`;
       let fill=Math.min(d*2.5+spd*0.35,1.0);
-      fill=Math.pow(fill,1.5);
-      ctx.fillText(CHARS[Math.min(Math.floor(fill*CHARS.length),CHARS.length-1)],i*CW,py);
+      fill=Math.pow(fill,1.1);
+      const charIndex=Math.max(1,Math.min(Math.floor(fill*CHARS.length),CHARS.length-1));
+      ctx.fillText(CHARS[charIndex],i*CW,py);
     }
   }
 }
