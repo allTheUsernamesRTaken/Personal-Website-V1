@@ -1,6 +1,6 @@
 # ASCII Fluid Dynamics Simulator 
 
-My personal website. The background is a fluid sim made out of ASCII/block characters you can play with. Info card on top with bio, links, skills.
+My personal website. The background is a fluid sim made out of ASCII characters you can play with. Info card on top with bio, links, skills.
 
 Made the first version in high school so the stack is a bit rudimentary, but I'm still proud of it, it's plain HTML, CSS, JS.
 
@@ -37,7 +37,7 @@ Project is the important one, it's what makes it swirl like fluid instead of jus
 
 ## Drawing:
 
-`render.js` draws one character per cell, skips empty ones to save time. Heavier block (`░ ▒ ▓ █ ■`) the more smoke, hue from the direction the fluid moves, brighter where it's fast or swirly, fades to nothing where there's barely anything.
+`render.js` draws one character per cell, skips empty ones to save time. Denser ASCII characters (from `.` through symbols like `#`, `@`, and `$`) mean more smoke; hue comes from the direction the fluid moves, and it gets brighter where it's fast or swirly.
 
 `loop.js` is the loop. Physics only runs every other frame (`_frame % 2`) but draws every frame. Half for speed, half because it looked better that way.
 
