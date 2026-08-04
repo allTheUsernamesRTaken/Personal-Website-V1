@@ -1,37 +1,115 @@
-/* fluid canvas sits behind everything, never intercepts events */
+/* The sim fills the viewport and never eats a click. dvh so a phone's
+   collapsing address bar doesn't leave a strip of dead canvas. */
 #c {
   position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
   display: block;
   pointer-events: none;
 }
 
-/* Card: layout and scroll */
-#card {
+/* The panel is a fixed rectangle, deliberately off-centre and left-anchored.
+   Two reasons: it stops covering the part of the flow worth looking at, and
+   it gives the current a clean run at it — everything downstream of the
+   right-hand edge is wake. Its size is held constant across tabs so the
+   obstacle in the solver doesn't jump around. */
+#panel {
   position: fixed;
+  left: clamp(18px, 5vw, 84px);
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 520px;
-  max-width: 92vw;
-  height: 86vh;
+  transform: translateY(-50%);
+  width: min(560px, 46vw);
+  height: min(742px, 86vh);
+  height: min(742px, 86dvh);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 22px 24px 0;
+  z-index: 10;
+  user-select: text;
+}
+
+/* Viewfinder corner ticks. Cheaper than it looks: eight 1px gradients. */
+#panel::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--acc), var(--acc)) 0    0    / 1px  15px no-repeat,
+    linear-gradient(var(--acc), var(--acc)) 0    0    / 15px 1px  no-repeat,
+    linear-gradient(var(--acc), var(--acc)) 100% 0    / 1px  15px no-repeat,
+    linear-gradient(var(--acc), var(--acc)) 100% 0    / 15px 1px  no-repeat,
+    linear-gradient(var(--acc), var(--acc)) 0    100% / 1px  15px no-repeat,
+    linear-gradient(var(--acc), var(--acc)) 0    100% / 15px 1px  no-repeat,
+    linear-gradient(var(--acc), var(--acc)) 100% 100% / 1px  15px no-repeat,
+    linear-gradient(var(--acc), var(--acc)) 100% 100% / 15px 1px  no-repeat;
+  opacity: 0.85;
+}
+
+.panes { flex: 1 1 auto; min-height: 0; position: relative; }
+
+.pane {
+  display: none;
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  container-type: inline-size;
-  container-name: card;
-  /* Card background opacity: change the last value - lower = more transparent */
-  background: rgba(4, 5, 11, 0.60);
-  border: 1px solid rgba(255,255,255,0.16);
-  padding: 26px 28px 38px;
-  color: #fff;
-  font-family: 'Share Tech Mono', monospace;
-  line-height: 1.6;
+  padding-right: 10px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.18) transparent;
-  user-select: text;
-  cursor: default;
-  z-index: 10;
+  scrollbar-color: var(--line) transparent;
 }
-#card::-webkit-scrollbar { width: 3px; }
-#card::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.16); }
-#card::-webkit-scrollbar-track { background: transparent; }
+.pane.is-on { display: block; }
+.pane::-webkit-scrollbar { width: 3px; }
+.pane::-webkit-scrollbar-thumb { background: var(--line); }
+.pane::-webkit-scrollbar-track { background: transparent; }
+
+/* Telemetry, bottom right. Diegetic — it reads the actual solver. */
+#hud {
+  position: fixed;
+  right: 18px; bottom: 14px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--dimmer);
+  text-align: right;
+  pointer-events: none;
+  z-index: 5;
+  white-space: pre;
+}
+#hud b { color: var(--acc-soft); font-weight: normal; }
+
+/* ── phones ──────────────────────────────────────────────────────────
+   Anchored to the bottom rather than centred, so the fluid keeps a real
+   band across the top instead of a 4px sliver. That band is also where
+   freeRegion() puts the intro stamp, so the name still condenses out of
+   the smoke on a phone. */
+@media (max-width: 760px) {
+  #panel {
+    left: 10px; right: 10px; width: auto;
+    top: auto;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    transform: none;
+    height: 70vh;
+    height: 70dvh;
+    max-height: 780px;
+    padding: 16px 16px 0;
+  }
+  #hud { display: none; }
+}
+
+/* Landscape phone: no vertical room at all, so go back to a side panel and
+   let the flow have the rest of the width. */
+@media (max-width: 760px) and (max-height: 540px) {
+  #panel {
+    left: 10px; right: auto;
+    width: min(430px, 62vw);
+    top: 50%; bottom: auto;
+    transform: translateY(-50%);
+    height: 92vh;
+    height: 92dvh;
+    padding: 12px 14px 0;
+  }
+}

@@ -1,2 +1,45 @@
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:100%; height:100%; background:#05060c; overflow:hidden; user-select:none; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --ink:      #05060c;
+  --panel:    rgba(3, 5, 11, 0.84);
+  --line:     rgba(255, 255, 255, 0.15);
+  --line-hi:  rgba(255, 255, 255, 0.30);
+  --txt:      rgba(255, 255, 255, 0.84);
+  --dim:      rgba(255, 255, 255, 0.44);
+  --dimmer:   rgba(255, 255, 255, 0.24);
+  --acc:      #ffab4d;
+  --acc-soft: rgba(255, 171, 77, 0.72);
+
+  /* Share Tech Mono has no box-drawing glyphs; the fallbacks do the ASCII. */
+  --mono: 'Share Tech Mono', ui-monospace, 'Cascadia Mono', Consolas, 'DejaVu Sans Mono', monospace;
+  --glyph: ui-monospace, 'Cascadia Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
+  --disp: 'VT323', ui-monospace, Consolas, monospace;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  background: var(--ink);
+  overflow: hidden;
+  overscroll-behavior: none;
+  user-select: none;
+  color: var(--txt);
+  font-family: var(--mono);
+  -webkit-text-size-adjust: 100%;
+}
+
+button, a, input { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+:focus-visible { outline: 1px solid var(--acc); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

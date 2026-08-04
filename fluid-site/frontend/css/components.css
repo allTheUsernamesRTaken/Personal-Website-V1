@@ -1,103 +1,183 @@
-/* ASCII name */
+/* ── head ──────────────────────────────────────────────────────────── */
+.head { flex: 0 0 auto; margin-bottom: 14px; }
+
 .ascii-wrap {
   overflow-x: auto;
   overflow-y: hidden;
-  margin-bottom: 10px;
   scrollbar-width: none;
 }
 .ascii-wrap::-webkit-scrollbar { display: none; }
+
+/* 74 characters wide, so the size has to track the viewport or it runs off
+   the edge of a phone. Caps at the original 7px on desktop. */
 .ascii-name {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 7px;
+  font-family: var(--glyph);
+  font-size: clamp(4.2px, 1.5vw, 7px);
   line-height: 1.22;
   white-space: pre;
   color: #fff;
   display: block;
-  letter-spacing: 0;
 }
 
-/* Section title */
-.section-title {
-  font-family: 'VT323', monospace;
-  font-size: 22px;
-  letter-spacing: 0.2em;
-  color: #fff;
-  margin: 16px 0 8px;
-  border-bottom: 1px solid rgba(255,255,255,0.13);
-  padding-bottom: 3px;
+.strap {
+  margin-top: 9px;
+  font-family: var(--disp);
+  font-size: 18px;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
+  color: var(--dim);
 }
 
-/* Bio */
-.bio-line {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
-  color: rgba(255,255,255,0.88);
-  margin-bottom: 3px;
+/* ── tabs ──────────────────────────────────────────────────────────── */
+.tabs {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 16px;
 }
+.tab {
+  appearance: none;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--disp);
+  font-size: 19px;
+  letter-spacing: 0.12em;
+  color: var(--dim);
+  padding: 5px 10px;
+  transition: color 0.12s;
+}
+.tab:hover { color: var(--txt); }
+.tab.is-on { color: var(--acc); }
+.tab.is-on::before { content: '['; margin-right: 3px; }
+.tab.is-on::after  { content: ']'; margin-left: 3px; }
 
-/* Links */
-.links-row {
+/* ── copy ──────────────────────────────────────────────────────────── */
+.sec {
+  font-family: var(--disp);
+  font-size: 20px;
+  font-weight: normal;
+  letter-spacing: 0.22em;
+  color: var(--acc-soft);
+  margin: 20px 0 9px;
+}
+.sec:first-child { margin-top: 0; }
+
+.body {
+  font-size: 12.5px;
+  line-height: 1.72;
+  color: var(--txt);
+  margin-bottom: 10px;
+  text-wrap: pretty;
+}
+.body b { color: #fff; font-weight: normal; border-bottom: 1px solid var(--line-hi); }
+
+/* ── entries (work / built) ────────────────────────────────────────── */
+.entry { margin-bottom: 20px; }
+.entry:last-child { margin-bottom: 4px; }
+
+.entry-h {
   display: flex;
   flex-wrap: wrap;
-  gap: 22px;
-  margin: 12px 0 0;
-  align-items: center;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 12px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 3px;
+  margin-bottom: 5px;
 }
-.link-btn {
-  display: inline-flex;
+.who  { font-family: var(--disp); font-size: 20px; letter-spacing: 0.05em; color: #fff; }
+.when { font-size: 10.5px; color: var(--dimmer); white-space: nowrap; letter-spacing: 0.05em; }
+.role { font-size: 11px; color: var(--dim); margin-bottom: 6px; letter-spacing: 0.03em; }
+
+.entry-links { display: flex; gap: 16px; }
+.entry-links a {
+  font-size: 11px;
+  color: var(--acc-soft);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.entry-links a:hover { border-bottom-color: var(--acc-soft); }
+
+/* ── try-this list ─────────────────────────────────────────────────── */
+.try { list-style: none; margin: 12px 0 4px; }
+.try li { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.try span { font-size: 11px; color: var(--dim); }
+.run {
+  appearance: none;
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--acc);
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 1px 7px;
+  flex: 0 0 auto;
+  min-width: 116px;
+  text-align: left;
+  transition: border-color 0.12s, background 0.12s;
+}
+.run:hover { border-color: var(--acc); background: rgba(255, 171, 77, 0.09); }
+
+/* ── links ─────────────────────────────────────────────────────────── */
+.links {
+  display: flex;
   flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 18px 0 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.link {
+  display: inline-flex;
   align-items: center;
   gap: 7px;
-  color: #fff;
+  color: var(--txt);
   text-decoration: none;
-  font-family: 'VT323', monospace;
-  font-size: 20px;
+  font-family: var(--disp);
+  font-size: 19px;
   letter-spacing: 0.07em;
-  opacity: 0.8;
-  transition: opacity 0.1s;
-  min-width: 0;
+  transition: color 0.12s;
 }
-.link-btn:hover { opacity: 1; text-decoration: underline; }
-.link-btn canvas { image-rendering: pixelated; display: block; flex-shrink: 0; }
-.link-btn span { white-space: nowrap; }
-/* When card is narrow, allow link labels (e.g. Resume) to wrap to next line */
-@container card (max-width: 420px) {
-  .link-btn span { white-space: normal; word-break: break-word; }
-}
+.link canvas { image-rendering: pixelated; display: block; flex-shrink: 0; opacity: 0.72; transition: opacity 0.12s; }
+.link:hover { color: var(--acc); }
+.link:hover canvas { opacity: 1; }
 
-/* Divider */
-hr.rule {
-  border: none;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  margin: 20px 0;
+.foot {
+  font-size: 10.5px;
+  line-height: 1.7;
+  color: var(--dimmer);
+  padding-bottom: 4px;
 }
+.wry { color: rgba(255, 171, 77, 0.42); }
 
-/* Skills */
-.skill-group { margin-bottom: 14px; }
-.skill-key {
-  font-family: 'VT323', monospace;
-  font-size: 16px;
-  letter-spacing: 0.12em;
-  color: rgba(255,255,255,0.48);
-  margin-bottom: 6px;
+/* ── stack table ───────────────────────────────────────────────────── */
+.stack {
+  display: grid;
+  grid-template-columns: 82px 1fr;
+  gap: 7px 12px;
+  font-size: 12px;
+  line-height: 1.6;
 }
-.tags { display: flex; flex-wrap: wrap; gap: 5px; }
-.tag {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  border: 1px solid rgba(255,255,255,0.24);
-  padding: 2px 8px;
-  color: #fff;
-  white-space: nowrap;
-}
+.stack dt { color: var(--dim); letter-spacing: 0.06em; }
+.stack dd { color: var(--txt); }
 
-/* Hint line (below ASCII name) */
-.hint-line {
-  margin-top: 3px;
-  margin-bottom: 1px;
-  font-family: 'VT323', monospace;
-  font-size: 14px;
-  color: rgba(255,255,255,0.22);
-  text-align: left;
-  letter-spacing: 0.1em;
+/* ── phones ────────────────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  /* Tabs are the main navigation and 30px is not a tappable target. */
+  .tab { padding: 9px 11px; font-size: 20px; }
+  .links { gap: 12px 20px; }
+  .link { font-size: 20px; padding: 2px 0; }
+
+  .try li { flex-wrap: wrap; gap: 4px 12px; }
+  .run { min-width: 0; padding: 3px 9px; }
+
+  .stack { grid-template-columns: 1fr; gap: 2px; }
+  .stack dt { margin-top: 8px; }
+  .stack dt:first-child { margin-top: 0; }
+
+  .body { font-size: 13px; }
+  .entry { margin-bottom: 17px; }
 }

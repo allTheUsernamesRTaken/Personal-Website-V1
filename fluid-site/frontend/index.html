@@ -2,116 +2,242 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daniel Guo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Daniel Guo — CS + Machine Learning, Waterloo</title>
+  <meta name="description" content="Daniel Guo — CS + Machine Learning at the University of Waterloo. Computer vision, robotics, and a real-time ASCII fluid simulation you can push around.">
+  <meta name="theme-color" content="#05060c">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Daniel Guo">
+  <meta property="og:description" content="CS + Machine Learning @ Waterloo. The background is a real-time fluid solver — the panel is a solid body inside it.">
+  <meta property="og:url" content="https://danielguo.net/">
+  <meta property="og:image" content="https://danielguo.net/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+
   <link rel="stylesheet" href="css/main.css">
   <link rel="icon" type="image/x-icon" href="js/icons/dg.ico">
 </head>
 <body>
 
-<canvas id="c"></canvas>
+<canvas id="c" aria-hidden="true"></canvas>
 
-<div id="card">
+<h1 class="sr-only">Daniel Guo — Computer Science and Machine Learning, University of Waterloo</h1>
 
-  <!-- ASCII name from upload -->
-  <div class="ascii-wrap"><pre class="ascii-name">██████╗░░█████╗░███╗░░██╗██╗███████╗██╗░░░░░  ░██████╗░██╗░░░██╗░█████╗░
+<main id="panel">
+
+  <header class="head">
+    <div class="ascii-wrap"><pre class="ascii-name" aria-hidden="true">██████╗░░█████╗░███╗░░██╗██╗███████╗██╗░░░░░  ░██████╗░██╗░░░██╗░█████╗░
 ██╔══██╗██╔══██╗████╗░██║██║██╔════╝██║░░░░░  ██╔════╝░██║░░░██║██╔══██╗
 ██║░░██║███████║██╔██╗██║██║█████╗░░██║░░░░░  ██║░░██╗░██║░░░██║██║░░██║
 ██║░░██║██╔══██║██║╚████║██║██╔══╝░░██║░░░░░  ██║░░╚██╗██║░░░██║██║░░██║
 ██████╔╝██║░░██║██║░╚███║██║███████╗███████╗  ╚██████╔╝╚██████╔╝╚█████╔╝
 ╚═════╝░╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚══════╝╚══════╝  ░╚═════╝░░╚═════╝░░╚════╝░</pre></div>
-  <div class="hint-line">[ move or touch background to interact ]</div>
+    <p class="strap">computer vision &amp; the parts of ML that touch something physical</p>
+  </header>
 
-  <!-- Bio -->
-  <div class="section-title">// BIO</div>
-  <div class="bio-line">CS + ML (Applied Math) @ University of Waterloo</div>
-  <div class="bio-line">Interested in Machine Learning &amp; Full Stack Development</div>
+  <nav class="tabs" aria-label="Sections">
+    <button class="tab is-on" data-pane="ident">ident</button>
+    <button class="tab" data-pane="work">work</button>
+    <button class="tab" data-pane="built">built</button>
+    <button class="tab" data-pane="stack">stack</button>
+  </nav>
 
-  <!-- Links with pixel art icons -->
-  <div class="links-row">
-    <a class="link-btn" href="https://www.linkedin.com/in/danielguo2007/" target="_blank" rel="noopener">
-      <canvas id="liIcon" width="16" height="16"></canvas><span>LinkedIn</span>
-    </a>
-    <a class="link-btn" href="https://github.com/allTheUsernamesRTaken" target="_blank" rel="noopener">
-      <canvas id="ghIcon" width="16" height="16"></canvas><span>GitHub</span>
-    </a>
-    <a class="link-btn" href="mailto:danielguo2007@gmail.com">
-      <canvas id="emIcon" width="16" height="16"></canvas><span>Email</span>
-    </a>
-    <a class="link-btn" href="Resume.pdf" target="_blank" rel="noopener">
-      <canvas id="resIcon" width="16" height="16"></canvas><span>Resume</span>
-    </a>
+  <div class="panes">
+
+    <!-- ─────────────────────────────── IDENT ─────────────────────────── -->
+    <section class="pane is-on" data-pane="ident" tabindex="0">
+      <h2 class="sec">// IDENT</h2>
+      <p class="body">
+        Waterloo — CS + Machine Learning (Applied Math), '30. Right now at the
+        <b>SFU Intelligent Robotics Lab</b>, on multi-point articulation
+        inference for robot RL.
+      </p>
+      <p class="body">
+        I keep ending up on the ugly seam between a model and the real world:
+        a detector that has to tell a signature from a doodle, a vending
+        machine that must never dispense twice, a landmark tracker that has to
+        survive a face drawn in pencil at forty degrees. That seam is the
+        actual job — the demo was never the hard part.
+      </p>
+
+      <h2 class="sec">// THE BACKGROUND</h2>
+      <p class="body">
+        Stable fluids, Jos Stam 1999. ~16k cells, solved every other frame,
+        drawn one ASCII character per cell — colour is the direction the fluid
+        is moving. Push it around. The panel you're reading isn't painted on
+        top of it either: it's a <b>solid boundary inside the solve</b>, so
+        smoke can't cross it and the flow has to go around.
+      </p>
+      <ul class="try">
+        <li><button class="run" data-run="solid off">solid off</button><span>take the panel out of the flow</span></li>
+        <li><button class="run" data-run="echo stable fluids">echo &lt;text&gt;</button><span>stamp words into the smoke</span></li>
+        <li><button class="run" data-run="wind 1">wind 1</button><span>steady current — watch the wake</span></li>
+        <li><button class="run" data-run="help">help</button><span>everything else</span></li>
+      </ul>
+
+      <div class="links">
+        <a class="link" href="https://www.linkedin.com/in/dguo7/" target="_blank" rel="noopener">
+          <canvas id="liIcon" width="16" height="16" aria-hidden="true"></canvas><span>LinkedIn</span>
+        </a>
+        <a class="link" href="https://github.com/allTheUsernamesRTaken" target="_blank" rel="noopener">
+          <canvas id="ghIcon" width="16" height="16" aria-hidden="true"></canvas><span>GitHub</span>
+        </a>
+        <a class="link" href="mailto:danielguo2007@gmail.com">
+          <canvas id="emIcon" width="16" height="16" aria-hidden="true"></canvas><span>Email</span>
+        </a>
+        <a class="link" href="Daniel-Guo-Resume.pdf" target="_blank" rel="noopener">
+          <canvas id="resIcon" width="16" height="16" aria-hidden="true"></canvas><span>Resume</span>
+        </a>
+      </div>
+
+      <p class="foot">
+        Presidential Scholar · BC Achievement Scholarship ·
+        <span class="wry">UW Cheese Club, member in good standing</span>
+      </p>
+    </section>
+
+    <!-- ─────────────────────────────── WORK ──────────────────────────── -->
+    <section class="pane" data-pane="work" tabindex="0">
+      <h2 class="sec">// WORK</h2>
+
+      <article class="entry">
+        <div class="entry-h"><span class="who">SFU Intelligent Robotics Lab</span><span class="when">aug '26 — now</span></div>
+        <div class="role">Research Assistant · Vancouver</div>
+        <p class="body">Multi-point articulation inference models for robot RL, under Dr. Siqi Zhou.</p>
+      </article>
+
+      <article class="entry">
+        <div class="entry-h"><span class="who">ZigZag Technologies</span><span class="when">may '26 — aug '26</span></div>
+        <div class="role">Software Engineer Intern · Toronto (remote)</div>
+        <p class="body">
+          Digital-twin control platform for autonomous vending machines, plus the
+          adapter mapping simulated operations onto live machine APIs. Built the
+          physical-command lifecycle — dispatch, ack, verify, reconcile — so a
+          network partition can't become a double dispense. 1,000+ replayable runs
+          against 20+ injected API, hardware and operator failure modes, and
+          offline-safe state for the Raspberry Pi deployments.
+        </p>
+      </article>
+
+      <article class="entry">
+        <div class="entry-h"><span class="who">Legends Haul</span><span class="when">apr '26 — may '26</span></div>
+        <div class="role">Software Developer Intern · Vancouver</div>
+        <p class="body">
+          Two-stage signature detection for AR automation: OpenCV contour
+          heuristics feeding a CPU-tuned YOLOv8 with a hard-negative mining loop,
+          to tell a real signature from a handwritten note on the same form.
+          82% → 94% in four training runs. Took ~4 hrs/day of manual entry off the
+          floor and caught 600 historical errors on the way through.
+        </p>
+      </article>
+
+      <article class="entry">
+        <div class="entry-h"><span class="who">SharpCone</span><span class="when">jun '25 — aug '25</span></div>
+        <div class="role">Intern · Langley</div>
+        <p class="body">
+          Quote-drafting tool for a plastics supplier — FastAPI, pandas, SQLite,
+          ReportLab — generating customer-ready PDFs off their existing Excel
+          pricing sheets.
+        </p>
+      </article>
+    </section>
+
+    <!-- ─────────────────────────────── BUILT ─────────────────────────── -->
+    <section class="pane" data-pane="built" tabindex="0">
+      <h2 class="sec">// BUILT</h2>
+
+      <article class="entry">
+        <div class="entry-h"><span class="who">ASCII Fluid Dynamics Simulator</span><span class="when">js · canvas</span></div>
+        <p class="body">
+          The thing behind this panel, written from the 1999 paper: Gauss-Seidel
+          pressure solve, semi-Lagrangian advection, vorticity confinement to put
+          back the curls diffusion eats. Obstacles are real Neumann boundaries —
+          the panel is one. Semi-Lagrangian scheme took framerate up ~200% over
+          my first naive pass.
+        </p>
+        <div class="entry-links">
+          <a href="https://github.com/allTheUsernamesRTaken/Personal-Website-V1" target="_blank" rel="noopener">source ↗</a>
+          <a href="https://github.com/allTheUsernamesRTaken/Personal-Website-V1#readme" target="_blank" rel="noopener">writeup ↗</a>
+        </div>
+      </article>
+
+      <article class="entry">
+        <div class="entry-h"><span class="who">Facial-Landmark Feedback Pipeline</span><span class="when">python · opencv</span></div>
+        <p class="body">
+          Landmark feedback for drawings as well as photographs. Where the neural
+          detectors gave up — rotated heads, pencil sketches — it falls back to CPD
+          registration and solvePnP geometry. On a 50-case benchmark: 98.9% / 100%
+          precision-recall, against GPT-5.5's 63.5% / 70.5%.
+        </p>
+      </article>
+
+      <article class="entry">
+        <div class="entry-h"><span class="who">Phone-Detection Roomba</span><span class="when">python · esp32 · aws</span></div>
+        <p class="body">
+          A Roomba that comes and finds you. On-device YOLOv8 for frame-rate
+          phone/face tracking, one cloud Rekognition call to work out who it's
+          looking at. The patrol controller is a finite state machine doing
+          proportional visual servoing off the bounding box.
+        </p>
+      </article>
+
+      <article class="entry">
+        <div class="entry-h"><span class="who">VR 3D Modelling App</span><span class="when">c# · unity · openxr</span></div>
+        <p class="body">
+          Built with friends at CMU Nexhacks over a weekend. Honorable mention out
+          of ~500 submissions.
+        </p>
+      </article>
+    </section>
+
+    <!-- ─────────────────────────────── STACK ─────────────────────────── -->
+    <section class="pane" data-pane="stack" tabindex="0">
+      <h2 class="sec">// STACK</h2>
+      <dl class="stack">
+        <dt>daily</dt>      <dd>Python · C/C++ · TypeScript / JS · SQL</dd>
+        <dt>also</dt>       <dd>C# · Java</dd>
+        <dt>ml + cv</dt>    <dd>PyTorch · TensorFlow · OpenCV · MediaPipe · YOLO · scikit-learn</dd>
+        <dt>services</dt>   <dd>FastAPI · Node · Next.js / React · PostgreSQL</dd>
+        <dt>infra</dt>      <dd>Docker · AWS (S3 / Lambda / SQS) · Linux</dd>
+        <dt>elsewhere</dt>  <dd>ROS2 · Unity · pandas</dd>
+      </dl>
+
+      <h2 class="sec">// OFF-CLOCK</h2>
+      <p class="body">
+        Rock climbing. Bread, and other things that take all afternoon. Long
+        novels. Cheese, apparently formally.
+      </p>
+    </section>
+
   </div>
 
-  <hr class="rule">
-
-  <!-- Skills -->
-  <div class="section-title">// SKILLS</div>
-
-  <div class="skill-group">
-    <div class="skill-key">LANGUAGES</div>
-    <div class="tags">
-      <span class="tag">Python</span>
-      <span class="tag">SQL</span>
-      <span class="tag">C / C++</span>
-      <span class="tag">C#</span>
-      <span class="tag">Java</span>
-      <span class="tag">JavaScript</span>
-      <span class="tag">Bash</span>
+  <div class="console">
+    <div id="cmdlog" class="cmdlog" aria-live="polite"></div>
+    <div class="prompt-row">
+      <label class="prompt" for="cmd">dg@fluid:~$</label>
+      <input id="cmd" type="text" autocomplete="off" autocapitalize="off"
+             autocorrect="off" spellcheck="false" aria-label="Command input"
+             placeholder="help">
     </div>
   </div>
 
-  <div class="skill-group">
-    <div class="skill-key">LIBRARIES &amp; FRAMEWORKS</div>
-    <div class="tags">
-      <span class="tag">OpenCV</span>
-      <span class="tag">Pytorch</span>
-      <span class="tag">TensorFlow / Keras</span>
-      <span class="tag">Vite / React</span>
-      <span class="tag">PostGres</span>
-      <span class="tag">Django</span>
-      <span class="tag">Scikit-Learn</span>
-      <span class="tag">FastAPI</span>
-    </div>
-  </div>
+</main>
 
-  <div class="skill-group">
-    <div class="skill-key">TOOLS</div>
-    <div class="tags">
-      <span class="tag">Git/Github</span>
-      <span class="tag">Docker</span>
-      <span class="tag">LangGraph</span>
-      <span class="tag">Kubernetes</span>
-      <span class="tag">Unity</span>
-      <span class="tag">GraphQL</span>
-      <span class="tag">Linux</span>
-      <span class="tag">Rest APIs</span>
-    </div>
-  </div>
-
-  <hr class="rule">
-
-  <!-- Interests -->
-  <div class="section-title">// INTERESTS</div>
-  <div class="skill-group">
-    <div class="tags">
-      <span class="tag">Coding</span>
-      <span class="tag">Cooking &amp; Baking</span>
-      <span class="tag">Rock Climbing</span>
-      <span class="tag">Novels</span>
-      <span class="tag">Music</span>
-      <span class="tag">Movies</span>
-    </div>
-  </div>
-</div>
+<div id="hud" aria-hidden="true"></div>
 
 <script src="js/icons/pixelGrids.js"></script>
 <script src="js/icons/drawIcons.js"></script>
 <script src="js/fluid/constants.js"></script>
 <script src="js/fluid/grid.js"></script>
+<script src="js/fluid/solids.js"></script>
 <script src="js/fluid/solver.js"></script>
+<script src="js/fluid/ambient.js"></script>
+<script src="js/fluid/text.js"></script>
 <script src="js/fluid/render.js"></script>
 <script src="js/fluid/input.js"></script>
+<script src="js/ui/panes.js"></script>
+<script src="js/ui/console.js"></script>
+<script src="js/ui/hud.js"></script>
 <script src="js/fluid/loop.js"></script>
 </body>
 </html>

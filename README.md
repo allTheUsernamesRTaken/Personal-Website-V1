@@ -8,20 +8,29 @@ Made the first version in high school so the stack is a bit rudimentary, but I'm
 
 ```
 fluid-site/frontend/
-├── index.html              the page + the card
+├── index.html              the page + the panel
 ├── css/                    styling
 └── js/
     ├── icons/              pixel-art link icons
-    └── fluid/              the sim
-        ├── constants.js    all the numbers
-        ├── grid.js         indexing, walls, adding stuff in
-        ├── solver.js       the physics
-        ├── render.js       numbers into colored characters
-        ├── input.js        mouse / touch
-        └── loop.js         the animation loop
+    ├── fluid/              the sim
+    │   ├── constants.js    all the numbers, grid allocation
+    │   ├── grid.js         indexing, walls, solid cells, adding stuff in
+    │   ├── solids.js       turns the panel into an obstacle
+    │   ├── solver.js       the physics
+    │   ├── ambient.js      optional steady current (off by default)
+    │   ├── text.js         rasterises text into the density field
+    │   ├── render.js       numbers into colored characters
+    │   ├── input.js        mouse / touch
+    │   └── loop.js         the animation loop
+    └── ui/
+        ├── panes.js        tab switching
+        ├── console.js      the command line
+        └── hud.js          telemetry readout
 ```
 
 Script load order (bottom of `index.html`) matters. It's all one global scope, not modules, so `constants.js` has to load first since it makes the arrays everything else uses. Reorder it and you get "X is not defined".
+
+`ambient.js` is the only file nothing else depends on — delete it and its `<script>` tag and the site is unchanged apart from losing the `wind` command.
 
 ## How the fluid works:
 
@@ -33,7 +42,26 @@ Project is the important one, it's what makes it swirl like fluid instead of jus
 
 `linSolve` is the same loop run `ITER` times to settle on an answer, both diffuse and project use it, more iterations looks better but slower. `advect` runs backwards, for each cell it asks where the stuff here came from and grabs from there, backwards is the reason it doesn't blow up.
 
-`setBound` is the walls. Not a real reflective wall, just copies the neighbor cell times 0.5 so fluid softly dies at the edges instead of piling up. There's also a `solid` array in `constants.js` for obstacles but I never finished it, nothing reads it.
+`setBound` is the walls. Not a real reflective wall, just copies the neighbor cell times 0.5 so fluid softly dies at the edges instead of piling up.
+
+## Obstacles:
+
+The `solid` array used to sit there unused. Now `solids.js` stamps the panel's bounding box into it, and the panel is a real boundary in the solve — smoke can't cross it and the flow goes around. `solid off` in the console takes it back out if you want to see the difference.
+
+The way it works is one change in `linSolve`. It used to be hardcoded to four neighbors:
+
+```
+diffuse:  x = (x0 + a*(4 neighbors)) / (1 + 4a)
+project:  x = (x0 +   (4 neighbors)) / 4
+```
+
+Now it counts how many neighbors are actually fluid and drops the solid ones from the stencil:
+
+```
+x = (x0 + a*sum_of_fluid_neighbors) / (cSelf + a*count)
+```
+
+Dropping a solid neighbor is a zero-gradient (Neumann) condition at the wall — ∂p/∂n = 0, no flux through it. The denominator has to shrink with the count or a cell walled in on three sides divides by too much and goes unstable. With no obstacles `count` is always 4 and it collapses back to exactly the two lines above, so the open-water behavior is unchanged (checked: fields come out bit-identical to the old solver over 150 steps of identical input).
 
 ## Drawing:
 
@@ -43,7 +71,9 @@ Project is the important one, it's what makes it swirl like fluid instead of jus
 
 ## Interacting:
 
-`input.js` takes the mouse/touch position, turns it into a cell, dumps density + velocity in. Moving paints a stream in the drag direction, clicking shoots it out in a circle. Ignores clicks over the card so the buttons still work. Added touch handlers later for phone.
+`input.js` takes the mouse/touch position, turns it into a cell, dumps density + velocity in. Moving paints a stream in the drag direction, clicking shoots it out in a circle. Ignores clicks over the panel so the buttons still work. Added touch handlers later for phone.
+
+There's also a command line at the bottom of the panel (`js/ui/console.js`). It isn't decoration — it writes to the same parameter object the solver reads, so `vort 14` really does change the physics on the next step. `help` lists everything. `echo <text>` rasterises the text into an offscreen canvas at grid resolution and uses the alpha channel as a smoke deposit, so the letters come out made of fluid and the flow pulls them apart.
 
 ## The numbers:
 
@@ -59,7 +89,13 @@ Used to blow up to NaN, screen freezes or goes blank. If `DT` or the injection s
 
 Smoke piled up at the edges before the `setBound` walls, the 0.5 copy was the fix.
 
-Slightly laggy on bigger monitors, bigger window means more cells means more math, so there's a `160×100` cap and the every-other-frame thing. (I set the simulation speed much lower now)
+Slightly laggy on bigger monitors, bigger window means more cells means more math, so there's a cell cap and the every-other-frame thing. (I set the simulation speed much lower now)
+
+The real cause of that lag turned out to be `vorticityConfinement` doing `new Float32Array(N)` every single step — about 60KB of garbage 30 times a second. Hoisting it to one reused buffer, plus indexing with `id+1` / `id+COLS` instead of calling `ix()` for every array access, took a huge chunk off the frame time.
+
+The grid was sized once at load from `window.innerWidth` and never recomputed, so resizing the window or rotating a phone stretched the whole sim. There's a debounced resize handler now that reallocates.
+
+Colors used to build an `hsla(...)` string per cell per frame, ~16k allocations a frame. Now they're a quantised index into a prebuilt lookup table and `fillStyle` only gets touched when the index changes.
 
 Mobile scrolled instead of drawing, had to `preventDefault()` on touchmove.
 

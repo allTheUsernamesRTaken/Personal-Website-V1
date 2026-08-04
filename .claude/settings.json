@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node simtest.js)",
+      "Bash(node sweep.js)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(timeout 110 node difftest.js)",
+      "Bash(timeout 110 node smoke.js)",
+      "Bash(timeout 100 node smoke.js)",
+      "Bash(timeout 100 node difftest.js)"
+    ]
+  }
+}
