@@ -3,7 +3,9 @@
    Draw the text into an offscreen canvas at exactly grid resolution, read
    the alpha channel back, and use it as a smoke deposit. The letters come
    out made of fluid, so the current starts pulling them apart the moment
-   they exist. Drives the intro and the `echo` command. */
+   they exist. Drives the `echo` command.
+
+   It used to drive the intro too. See intro.js for why it doesn't. */
 
 const _tCanvas = document.createElement('canvas');
 const _tCtx    = _tCanvas.getContext('2d', { willReadFrequently: true });
@@ -72,16 +74,4 @@ function stampText(str, opts) {
       vx0[id]   += (Math.random() - 0.5) * 0.55 * f;
     }
   }
-}
-
-/* Opening: the name condenses out of nothing, drifts, and dissolves back to
-   black. That's the whole answer to "the page looks dead before you touch
-   it" — one event on load, no permanent forcing running underneath. */
-function introSequence() {
-  if (REDUCED) return;
-  const reg = freeRegion();
-  if (reg.w * reg.h < 0.12) return;          // nowhere to put it
-  // A narrow grid can't resolve ten characters, so a phone gets initials.
-  const label = COLS < 70 ? 'DG' : 'DANIEL GUO';
-  setTimeout(() => stampText(label, { power: 3.5, lift: 0.55 }), 420);
 }

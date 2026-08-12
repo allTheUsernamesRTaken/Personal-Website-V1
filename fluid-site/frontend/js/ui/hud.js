@@ -12,7 +12,7 @@ function renderHud() {
   if (!hudEl) return;
   hudEl.innerHTML =
     `stable fluids · <b>${COLS}×${ROWS}</b> cells · <b>${liveCells}</b> live · <b>${_fps}</b> fps\n` +
-    `wind <b>${P.wind.toFixed(1)}</b> · vort <b>${P.vort.toFixed(1)}</b> · ` +
+    `wind <b>${windLevel().toFixed(1)}</b> · vort <b>${P.vort.toFixed(1)}</b> · ` +
     `<b>${P.palette}</b> · solid <b>${P.solids ? 'ON' : 'OFF'}</b>`;
 }
 

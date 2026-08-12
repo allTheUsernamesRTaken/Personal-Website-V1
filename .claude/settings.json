@@ -7,7 +7,14 @@
       "Bash(timeout 110 node difftest.js)",
       "Bash(timeout 110 node smoke.js)",
       "Bash(timeout 100 node smoke.js)",
-      "Bash(timeout 100 node difftest.js)"
+      "Bash(timeout 100 node difftest.js)",
+      "Bash(npx --no-install playwright --version)",
+      "Bash(node gustcheck.js)",
+      "Bash(node implcheck.js)",
+      "Bash(node implsweep.js)",
+      "Bash(node ringtest.js)",
+      "Bash(node finalcheck.js)",
+      "Bash(node --check js/fluid/intro.js)"
     ]
   }
 }

@@ -38,11 +38,13 @@ const HELP = [
   '',
   'the fluid —',
   'solid on|off    panel as a solid body in the flow (default on)',
-  'wind <0-4>      steady current, off by default — flow past a bluff body',
+  'wind            one gust across the field — flow past a bluff body',
+  'wind <0-4>      or pin a steady current instead (0 turns it off)',
   'vort <0-24>     vorticity confinement — how tight the curls stay',
   'visc <n>        viscosity          fade <0-1>   how fast smoke dies',
   'iter <4-40>     solver iterations per step',
   'palette <flow|thermal|ember|mono>',
+  'life on|off    optional digital microfauna; click/hold the background to feed',
   'echo <text>     rasterise text straight into the density field',
   'flush           empty the tank     reset        back to defaults',
   'clear           clear this log'
@@ -97,7 +99,19 @@ function runCommand(raw) {
         : 'panel removed from the solve — the fluid runs straight through it now', 'ok');
       return;
     }
-    case 'wind': setNum('wind', arg, 0, 4, 'wind'); return;
+    /* No argument is the one people actually want: a gust that arrives,
+       does the thing, and leaves. A number pins a steady current instead,
+       which is honest physics but never decays back to black. */
+    case 'wind': case 'gust': {
+      if (!arg) {
+        gust(1.4, simNow());
+        print('gust incoming — it splits at the panel and sheds off the corner', 'ok');
+        return;
+      }
+      setNum('wind', arg, 0, 4, 'wind');
+      if (P.wind <= 0) cancelGust();
+      return;
+    }
     case 'vort': setNum('vort', arg, 0, 24, 'vorticity'); return;
     case 'visc': setNum('visc', arg, 0, 0.02, 'viscosity'); return;
     case 'diff': setNum('diff', arg, 0, 0.02, 'diffusion'); return;
@@ -115,8 +129,16 @@ function runCommand(raw) {
       return;
     }
 
+    case 'life': {
+      const a = arg.toLowerCase();
+      if (a !== 'on' && a !== 'off') { print('life on|off   (now: ' + (packetLife.enabled ? 'on' : 'off') + ')'); return; }
+      const result = packetLifeSetEnabled(a === 'on');
+      print(result.message, result.ok ? 'ok' : 'err');
+      return;
+    }
+
     case 'echo': case 'say':
-      stampText(arg || 'DANIEL GUO');
+      stampText(arg || 'stable fluids');
       return;
 
     case 'flush': case 'clearfluid':
@@ -127,8 +149,10 @@ function runCommand(raw) {
 
     case 'reset':
       Object.assign(P, DEFAULTS);
+      cancelGust();
       buildPalette(P.palette);
       rebuildSolids();
+      packetLifeSetEnabled(false);
       print('back to defaults', 'ok');
       return;
 
@@ -187,7 +211,7 @@ cmdEl.addEventListener('keydown', e => {
     if (!stem) return;
     const words = ['help', 'ident', 'work', 'built', 'stack', 'resume', 'source',
                    'solid ', 'wind ', 'vort ', 'visc ', 'fade ', 'iter ',
-                   'palette ', 'echo ', 'flush', 'reset', 'clear', 'whoami'];
+                   'palette ', 'life ', 'echo ', 'flush', 'reset', 'clear', 'whoami'];
     const hit = words.find(w => w.startsWith(stem));
     if (hit) cmdEl.value = hit;
     return;

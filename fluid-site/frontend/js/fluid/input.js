@@ -1,6 +1,7 @@
 /* input.js — mouse / touch into the velocity field. */
 
 let prevCi = -1, prevCj = -1;
+let feeding = false;
 
 function getCell(cx, cy) {
   const r = canvas.getBoundingClientRect();
@@ -33,9 +34,15 @@ function burstAt(ci, cj) {
 }
 
 document.addEventListener('mousemove', e => {
-  if (overPanel(e)) { prevCi = -1; prevCj = -1; return; }
+  if (overPanel(e)) {
+    prevCi = -1; prevCj = -1;
+    packetLife.lastPointerI = -1; packetLife.lastPointerJ = -1;
+    return;
+  }
   const { ci, cj } = getCell(e.clientX, e.clientY);
+  noteUserInput();
   applyMove(ci, cj);
+  packetLifePointer(ci, cj);
 });
 
 document.addEventListener('mouseleave', () => { prevCi = -1; prevCj = -1; });
@@ -43,8 +50,19 @@ document.addEventListener('mouseleave', () => { prevCi = -1; prevCj = -1; });
 document.addEventListener('mousedown', e => {
   if (overPanel(e)) return;
   const { ci, cj } = getCell(e.clientX, e.clientY);
+  noteUserInput();
   burstAt(ci, cj);
+  if (e.button === 0) { feeding = true; packetLifeDropFood(ci, cj, performance.now()); }
 });
+
+document.addEventListener('mouseup', e => { if (e.button === 0) feeding = false; });
+window.addEventListener('blur', () => { feeding = false; });
+
+function packetLifeInputFrame(now) {
+  if (feeding && packetLife.lastPointerI >= 0) {
+    packetLifeDropFood(packetLife.lastPointerI, packetLife.lastPointerJ, now);
+  }
+}
 
 function getTouchCell(e) {
   if (!e.touches || !e.touches.length) return null;
@@ -55,7 +73,7 @@ function getTouchCell(e) {
 document.addEventListener('touchstart', e => {
   if (overPanel(e)) return;
   const cell = getTouchCell(e);
-  if (cell) { burstAt(cell.ci, cell.cj); prevCi = cell.ci; prevCj = cell.cj; }
+  if (cell) { noteUserInput(); burstAt(cell.ci, cell.cj); prevCi = cell.ci; prevCj = cell.cj; }
 }, { passive: true });
 
 document.addEventListener('touchmove', e => {

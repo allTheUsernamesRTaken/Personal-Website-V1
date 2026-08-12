@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Daniel Guo — CS + Machine Learning, Waterloo</title>
+  <title>Daniel Guo</title>
   <meta name="description" content="Daniel Guo — CS + Machine Learning at the University of Waterloo. Computer vision, robotics, and a real-time ASCII fluid simulation you can push around.">
   <meta name="theme-color" content="#05060c">
 
@@ -21,7 +21,7 @@
 
 <canvas id="c" aria-hidden="true"></canvas>
 
-<h1 class="sr-only">Daniel Guo — Computer Science and Machine Learning, University of Waterloo</h1>
+<h1 class="sr-only">Daniel Guo</h1>
 
 <main id="panel">
 
@@ -32,7 +32,7 @@
 ██║░░██║██╔══██║██║╚████║██║██╔══╝░░██║░░░░░  ██║░░╚██╗██║░░░██║██║░░██║
 ██████╔╝██║░░██║██║░╚███║██║███████╗███████╗  ╚██████╔╝╚██████╔╝╚█████╔╝
 ╚═════╝░╚═╝░░╚═╝╚═╝░░╚══╝╚═╝╚══════╝╚══════╝  ░╚═════╝░░╚═════╝░░╚════╝░</pre></div>
-    <p class="strap">computer vision &amp; the parts of ML that touch something physical</p>
+    <p class="strap">Full stack software, computer vision, & robotics</p>
   </header>
 
   <nav class="tabs" aria-label="Sections">
@@ -48,30 +48,29 @@
     <section class="pane is-on" data-pane="ident" tabindex="0">
       <h2 class="sec">// IDENT</h2>
       <p class="body">
-        Waterloo — CS + Machine Learning (Applied Math), '30. Right now at the
+        Computing + ML (Applied Math) @UWaterloo, '30. Right now at the
         <b>SFU Intelligent Robotics Lab</b>, on multi-point articulation
         inference for robot RL.
       </p>
       <p class="body">
-        I keep ending up on the ugly seam between a model and the real world:
-        a detector that has to tell a signature from a doodle, a vending
-        machine that must never dispense twice, a landmark tracker that has to
-        survive a face drawn in pencil at forty degrees. That seam is the
-        actual job — the demo was never the hard part.
+        I grew up in Vancouver BC and now I live in Waterloo, its a pretty cool city (no much to see though)
+        big fan of coding too btw
       </p>
 
       <h2 class="sec">// THE BACKGROUND</h2>
       <p class="body">
         Stable fluids, Jos Stam 1999. ~16k cells, solved every other frame,
-        drawn one ASCII character per cell — colour is the direction the fluid
-        is moving. Push it around. The panel you're reading isn't painted on
-        top of it either: it's a <b>solid boundary inside the solve</b>, so
+        drawn one ASCII character per cell. 
+        Colour is the direction the fluid
+        is moving, try dragging your mouse around. 
+        This panel is also a 
+        <b>solid boundary inside the solve</b>, so
         smoke can't cross it and the flow has to go around.
       </p>
       <ul class="try">
         <li><button class="run" data-run="solid off">solid off</button><span>take the panel out of the flow</span></li>
         <li><button class="run" data-run="echo stable fluids">echo &lt;text&gt;</button><span>stamp words into the smoke</span></li>
-        <li><button class="run" data-run="wind 1">wind 1</button><span>steady current — watch the wake</span></li>
+        <li><button class="run" data-run="wind">wind</button><span>a gust — watch it break around this panel</span></li>
         <li><button class="run" data-run="help">help</button><span>everything else</span></li>
       </ul>
 
@@ -91,8 +90,8 @@
       </div>
 
       <p class="foot">
-        Presidential Scholar · BC Achievement Scholarship ·
-        <span class="wry">UW Cheese Club, member in good standing</span>
+        Waterloo / Vancouver · <a class="wry" href="https://github.com/allTheUsernamesRTaken/Personal-Website-V1">site source ↗</a>
+        
       </p>
     </section>
 
@@ -149,11 +148,11 @@
       <article class="entry">
         <div class="entry-h"><span class="who">ASCII Fluid Dynamics Simulator</span><span class="when">js · canvas</span></div>
         <p class="body">
-          The thing behind this panel, written from the 1999 paper: Gauss-Seidel
+          ASCII fluid sim (this website) based on Jos Stam’s 1999 stable-fluids method: Gauss-Seidel
           pressure solve, semi-Lagrangian advection, vorticity confinement to put
-          back the curls diffusion eats. Obstacles are real Neumann boundaries —
-          the panel is one. Semi-Lagrangian scheme took framerate up ~200% over
-          my first naive pass.
+          back the curls diffusion eats. Obstacles, like this panel, are real Neumann boundaries. 
+          Semi-Lagrangian scheme took framerate up ~200% over
+          my first naive pass. 
         </p>
         <div class="entry-links">
           <a href="https://github.com/allTheUsernamesRTaken/Personal-Website-V1" target="_blank" rel="noopener">source ↗</a>
@@ -174,7 +173,7 @@
       <article class="entry">
         <div class="entry-h"><span class="who">Phone-Detection Roomba</span><span class="when">python · esp32 · aws</span></div>
         <p class="body">
-          A Roomba that comes and finds you. On-device YOLOv8 for frame-rate
+          A Roomba that follows you around and sounds an alarm when it sees a phone. On-device YOLOv8 for frame-rate
           phone/face tracking, one cloud Rekognition call to work out who it's
           looking at. The patrol controller is a finite state machine doing
           proportional visual servoing off the bounding box.
@@ -184,8 +183,8 @@
       <article class="entry">
         <div class="entry-h"><span class="who">VR 3D Modelling App</span><span class="when">c# · unity · openxr</span></div>
         <p class="body">
-          Built with friends at CMU Nexhacks over a weekend. Honorable mention out
-          of ~500 submissions.
+          Built with friends at CMU Nexhacks over a weekend (Honorable mention out
+          of ~500 submissions)
         </p>
       </article>
     </section>
@@ -202,10 +201,10 @@
         <dt>elsewhere</dt>  <dd>ROS2 · Unity · pandas</dd>
       </dl>
 
-      <h2 class="sec">// OFF-CLOCK</h2>
+      <h2 class="sec">// NON-WORK</h2>
       <p class="body">
-        Rock climbing. Bread, and other things that take all afternoon. Long
-        novels. Cheese, apparently formally.
+        Rock climbing is pretty cool, I also like cooking and want to get better at baking. I've also been trying to read more. Hiking is pretty fun too - 
+        in Vancouver i did grouse mountain and cypress, a few times, want to try to hike more in the future (not a lot of mountains in Waterloo)
       </p>
     </section>
 
@@ -233,7 +232,9 @@
 <script src="js/fluid/solver.js"></script>
 <script src="js/fluid/ambient.js"></script>
 <script src="js/fluid/text.js"></script>
+<script src="js/fluid/intro.js"></script>
 <script src="js/fluid/render.js"></script>
+<script src="js/fluid/packetLife.js"></script>
 <script src="js/fluid/input.js"></script>
 <script src="js/ui/panes.js"></script>
 <script src="js/ui/console.js"></script>
