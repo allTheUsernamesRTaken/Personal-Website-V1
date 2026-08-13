@@ -26,7 +26,7 @@
 .cmdlog .echo { color: var(--dimmer); }
 .cmdlog .out  { color: var(--dim); }
 .cmdlog .ok   { color: var(--acc-soft); }
-.cmdlog .err  { color: #ff7a5e; }
+.cmdlog .err  { color: var(--err); }
 
 .prompt-row {
   display: flex;

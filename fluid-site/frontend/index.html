@@ -16,6 +16,10 @@
 
   <link rel="stylesheet" href="css/main.css">
   <link rel="icon" type="image/x-icon" href="js/icons/dg.ico">
+
+  <!-- In the head, not with the rest: it stamps data-skin on <html> before
+       the panel first paints, so a saved skin doesn't flash the default. -->
+  <script src="js/ui/skins.js"></script>
 </head>
 <body>
 
@@ -53,8 +57,8 @@
         inference for robot RL.
       </p>
       <p class="body">
-        I grew up in Vancouver BC and now I live in Waterloo, its a pretty cool city (no much to see though)
-        big fan of coding too btw
+        I grew up in Vancouver BC and now I live in Waterloo, its a pretty cool city (no much to see though),
+       big fan of coding
       </p>
 
       <h2 class="sec">// THE BACKGROUND</h2>
@@ -68,6 +72,7 @@
         smoke can't cross it and the flow has to go around.
       </p>
       <ul class="try">
+        <li><button class="run" data-run="skin cut">skin cut</button><span>reskin this panel — then try `skin block`</span></li>
         <li><button class="run" data-run="solid off">solid off</button><span>take the panel out of the flow</span></li>
         <li><button class="run" data-run="echo stable fluids">echo &lt;text&gt;</button><span>stamp words into the smoke</span></li>
         <li><button class="run" data-run="wind">wind</button><span>a gust — watch it break around this panel</span></li>
@@ -204,7 +209,7 @@
       <h2 class="sec">// NON-WORK</h2>
       <p class="body">
         Rock climbing is pretty cool, I also like cooking and want to get better at baking. I've also been trying to read more. Hiking is pretty fun too - 
-        in Vancouver i did grouse mountain and cypress, a few times, want to try to hike more in the future (not a lot of mountains in Waterloo)
+        in Vancouver i did grouse mountain and cypress a few times, want to try to hike more in the future (not a lot of mountains in Waterloo)
       </p>
     </section>
 

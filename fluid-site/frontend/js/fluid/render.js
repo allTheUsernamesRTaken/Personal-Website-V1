@@ -57,7 +57,7 @@ function buildPalette(name) {
       if (LUT_BY_DIR) {
         /* HSL lightness, not a multiply — that's what makes the fast cores
            wash out to white instead of just getting a brighter hue. */
-        rgb = hsl2rgb(t * 360, 0.90, b * 0.92);
+        rgb = hsl2rgb(t * 360, P.sat, b * P.lum);
       } else {
         const base = rampAt(RAMPS[name], t);
         const m = Math.pow(b, 1.18);

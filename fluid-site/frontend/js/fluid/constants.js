@@ -18,7 +18,15 @@ const P = {
   dt        : 0.16,
   wind      : 0,                   // ambient current — off. see ambient.js
   solids    : true,                // panel is a solid body in the flow
-  palette   : 'flow'
+  palette   : 'flow',
+
+  /* Palette shape, for the `flow` wheel. sat is HSL saturation. lum is the
+     lightness ceiling the fastest cores reach — it's the one that actually
+     controls how colourful the field looks, because lightness near 1 washes
+     every hue out to white no matter how saturated it is. Drop lum and the
+     field gets more chromatic, not darker. */
+  sat       : 0.90,
+  lum       : 0.92
 };
 
 const DEFAULTS = Object.assign({}, P);

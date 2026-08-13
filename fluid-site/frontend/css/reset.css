@@ -1,15 +1,30 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* Every colour the panel uses is a token, because skins.css reskins the whole
+   surface by overriding this block scoped to #panel. Anything hardcoded here
+   is a colour a skin can't reach — so nothing is hardcoded. */
 :root {
   --ink:      #05060c;
   --panel:    rgba(3, 5, 11, 0.84);
   --line:     rgba(255, 255, 255, 0.15);
   --line-hi:  rgba(255, 255, 255, 0.30);
   --txt:      rgba(255, 255, 255, 0.84);
+  --hi:       #fff;                       /* emphasis: name, <b>, entry titles */
   --dim:      rgba(255, 255, 255, 0.44);
   --dimmer:   rgba(255, 255, 255, 0.24);
   --acc:      #ffab4d;
   --acc-soft: rgba(255, 171, 77, 0.72);
+  --acc-wash: rgba(255, 171, 77, 0.09);
+  --acc2:     var(--acc);                 /* second accent; only `block` uses one */
+  --err:      #ff7a5e;
+  --wry:      rgba(255, 171, 77, 0.42);
+
+  /* The panel's own edge, split out from --line so a skin can make the frame
+     heavy without also thickening every hairline rule inside it. */
+  --frame:    var(--line);
+  --frame-w:  1px;
+  --panel-lift: none;                     /* box-shadow; skins use it for depth */
+  --icon-filter: none;                    /* icons are drawn #fff on canvas */
 
   /* Share Tech Mono has no box-drawing glyphs; the fallbacks do the ASCII. */
   --mono: 'Share Tech Mono', ui-monospace, 'Cascadia Mono', Consolas, 'DejaVu Sans Mono', monospace;

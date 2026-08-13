@@ -14,7 +14,14 @@
       "Bash(node implsweep.js)",
       "Bash(node ringtest.js)",
       "Bash(node finalcheck.js)",
-      "Bash(node --check js/fluid/intro.js)"
+      "Bash(node --check js/fluid/intro.js)",
+      "Bash(git checkout *)",
+      "Bash(grep -rn \"#fff\\\\|#[0-9a-fA-F]\\\\{3,6\\\\}\\\\|rgba\\(255\" css/)",
+      "Bash(cd \"c:/Users/danie/OneDrive/Desktop/fluid site/Personal-Website-V1/fluid-site/frontend\" && echo \"used: $\\(wc -l < /tmp/used.txt\\)  defined: $\\(wc -l < /tmp/def.txt\\)\" && echo \"--- defined ---\" && cat /tmp/def.txt | tr '\\\\n' ' ')",
+      "Read(//tmp/**)",
+      "Bash(node --check js/ui/console.js)",
+      "Bash(curl -s http://localhost:8931/)",
+      "Bash(git commit *)"
     ]
   }
 }

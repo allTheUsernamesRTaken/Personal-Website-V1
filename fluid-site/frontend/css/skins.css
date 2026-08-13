@@ -1,0 +1,173 @@
+/* skins.css — three ways for the panel to sit on top of the fluid.
+
+   The background is a full 360° hue wheel at high saturation, so the panel
+   cannot win on colour: every hue it could pick is already on screen. What
+   the field never does is hold still, go flat, draw a hard edge, or occlude
+   anything. Those are the open axes, and each skin below picks different
+   ones.
+
+   Everything is scoped to #panel on purpose. #hud lives out on the dark
+   field and keeps the root tokens under every skin — it's an instrument
+   reading the world, not part of the document.
+
+   Switch with `skin <name>` in the console. See js/ui/skins.js. */
+
+
+/* ── night ───────────────────────────────────────────────────────────
+   The original. Translucent dark panel, amber viewfinder ticks. Kept as
+   the default and as the control to judge the other two against; the root
+   tokens in reset.css already are this skin, so there's nothing to set. */
+
+
+/* ── cut ─────────────────────────────────────────────────────────────
+   Wins on value and mass. The field is ~95% black, so an opaque light slab
+   is the largest value step available and it costs no chroma. Once
+   figure-ground is settled that way, the accent is free to be any hue —
+   it only has to work against the panel, not against the sim.
+
+   Everything is also pushed up out of the 11×12px band the background
+   texture occupies, because fine detail can't beat fine detail. Hairlines
+   become rules, section heads become filled bars, the frame gets weight. */
+[data-skin="cut"] #panel {
+  --panel:     #f2efe6;              /* bone, not white — reads as paper, not modal */
+  --txt:       #14161d;
+  --hi:        #000;
+  --dim:       rgba(20, 22, 29, 0.62);
+  --dimmer:    rgba(20, 22, 29, 0.42);
+  --line:      rgba(20, 22, 29, 0.22);
+  --line-hi:   rgba(20, 22, 29, 0.55);
+  --acc:       #e5341c;
+  --acc-soft:  #b8290f;
+  --acc-wash:  rgba(229, 52, 28, 0.10);
+  --err:       #a81a06;
+  --wry:       rgba(20, 22, 29, 0.52);
+  --frame:     #14161d;
+  --frame-w:   2px;
+  --icon-filter: invert(1);          /* drawIcons.js paints #fff */
+
+  /* Hard offset, no blur. A blurred shadow reads as a floating web card;
+     an unblurred one reads as a physical sheet laid on the field, and it
+     is the only element on the page that occludes anything. */
+  --panel-lift: 20px 20px 0 rgba(4, 5, 11, 0.55);
+}
+
+/* The gust enters over the top edge at ~25° (see ambient.js), so the top is
+   the stagnation edge and the top-right corner is where the wake sheds. One
+   solid bar along that leading edge — asymmetric, which matches the layout's
+   own argument, and it replaces four symmetric ticks that framed nothing. */
+[data-skin="cut"] #panel::before {
+  inset: calc(-1 * var(--frame-w)) calc(-1 * var(--frame-w)) auto;
+  height: 8px;
+  background: var(--acc);
+  opacity: 1;
+}
+
+[data-skin="cut"] .tabs {
+  border-top: 2px solid var(--hi);
+  border-bottom: 2px solid var(--hi);
+}
+[data-skin="cut"] .tab.is-on { background: var(--acc); color: var(--panel); }
+[data-skin="cut"] .tab.is-on::before,
+[data-skin="cut"] .tab.is-on::after { content: none; }
+
+[data-skin="cut"] .sec {
+  background: var(--hi);
+  color: var(--panel);
+  padding: 2px 10px;
+  letter-spacing: 0.18em;
+}
+
+[data-skin="cut"] .entry-h { border-bottom-width: 2px; border-bottom-color: var(--line-hi); }
+[data-skin="cut"] .links   { border-top-width: 2px;    border-top-color: var(--line-hi); }
+[data-skin="cut"] .console { border-top-width: 2px;    border-top-color: var(--line-hi); }
+[data-skin="cut"] .run     { border-color: var(--line-hi); }
+
+
+/* ── block ───────────────────────────────────────────────────────────
+   Stays dark and stays chromatic — for when muting the palette is the wrong
+   answer but the panel still has to separate. It wins on spatial frequency
+   instead: the background's colour lives in 11px cells, so the panel puts
+   its colour in bars that run the whole edge and a gradient that crosses the
+   whole surface. Same chroma energy, different scale, so they don't merge.
+
+   Op-art logic — two loud fields read as two fields, not as noise, as long
+   as they're loud at different frequencies. */
+[data-skin="block"] #panel {
+  --panel:     #07070f;
+  --txt:       rgba(255, 255, 255, 0.88);
+  --hi:        #fff;
+  --dim:       rgba(255, 255, 255, 0.50);
+  --dimmer:    rgba(255, 255, 255, 0.28);
+  --line:      rgba(255, 255, 255, 0.18);
+  --line-hi:   rgba(255, 255, 255, 0.42);
+  --acc:       #00e5ff;
+  --acc-soft:  #7df3ff;
+  --acc-wash:  rgba(0, 229, 255, 0.12);
+  --acc2:      #ff2d95;
+  --err:       #ff2d95;
+  --wry:       rgba(0, 229, 255, 0.45);
+  --frame:     rgba(255, 255, 255, 0.22);
+  --panel-lift: 0 0 0 1px rgba(0, 0, 0, 0.6), 24px 24px 0 rgba(4, 5, 11, 0.5);
+
+  /* Opaque, and the one large-scale colour event on the page. The old panel
+     was 0.84 alpha, so background glyphs bled through at 16% — the panel
+     literally contained the background's texture, which is most of why it
+     never separated from it. */
+  background: linear-gradient(157deg, #16061f 0%, #06070f 46%, #001a20 100%);
+}
+
+/* Magenta across the inflow edge, cyan down the edge the wake sheds off.
+   Full-length, 6px — the same hues the sim makes, deployed at a scale the
+   sim can't reach. */
+[data-skin="block"] #panel::before {
+  inset: -1px;
+  opacity: 1;
+  background:
+    linear-gradient(var(--acc2), var(--acc2)) 0    0 / 100% 6px  no-repeat,
+    linear-gradient(var(--acc),  var(--acc))  100% 0 / 6px  100% no-repeat;
+}
+
+[data-skin="block"] .tabs {
+  border-top: 2px solid var(--line-hi);
+  border-bottom: 2px solid var(--line-hi);
+}
+[data-skin="block"] .tab.is-on { background: var(--acc2); color: #12000a; }
+[data-skin="block"] .tab.is-on::before,
+[data-skin="block"] .tab.is-on::after { content: none; }
+
+[data-skin="block"] .sec {
+  background: var(--acc);
+  color: #04040a;
+  padding: 2px 10px;
+  letter-spacing: 0.18em;
+}
+
+[data-skin="block"] .entry-h { border-bottom-width: 2px; }
+[data-skin="block"] .links   { border-top-width: 2px; }
+[data-skin="block"] .console { border-top-width: 2px; }
+
+
+/* ── shared by both new skins ────────────────────────────────────────
+   Scale contrast against the 11×12px cell lattice. Small on its own, but
+   it's the difference between the panel reading as a surface and reading
+   as another patch of the same texture. */
+[data-skin="cut"] .body,
+[data-skin="block"] .body { font-size: 13.5px; line-height: 1.68; }
+
+[data-skin="cut"] .strap,
+[data-skin="block"] .strap { font-size: 19px; }
+
+[data-skin="cut"] .sec,
+[data-skin="block"] .sec { font-size: 21px; margin: 22px 0 11px; }
+
+[data-skin="cut"] .pane::-webkit-scrollbar,
+[data-skin="block"] .pane::-webkit-scrollbar { width: 5px; }
+
+@media (max-width: 760px) {
+  /* The bar sits on the frame, and the frame is thinner here. */
+  [data-skin="cut"] #panel::before { height: 6px; }
+  [data-skin="block"] #panel::before { background-size: 100% 5px, 5px 100%; }
+
+  [data-skin="cut"] .body,
+  [data-skin="block"] .body { font-size: 14px; }
+}

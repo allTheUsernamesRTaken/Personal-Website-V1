@@ -44,9 +44,15 @@ const HELP = [
   'visc <n>        viscosity          fade <0-1>   how fast smoke dies',
   'iter <4-40>     solver iterations per step',
   'palette <flow|thermal|ember|mono>',
+  'sat <0-1>       hue saturation      lum <0.35-1>  lightness ceiling',
+  '                lower lum = more chromatic, less wash-out (flow only)',
   'life on|off    optional digital microfauna; click/hold the background to feed',
   'echo <text>     rasterise text straight into the density field',
   'flush           empty the tank     reset        back to defaults',
+  '',
+  'the panel —',
+  'skin <night|cut|block>   how the panel sits on top of the field',
+  '',
   'clear           clear this log'
 ];
 
@@ -126,6 +132,34 @@ function runCommand(raw) {
       }
       buildPalette(name);
       print('palette = ' + name, 'ok');
+      return;
+    }
+
+    /* Both only shape the `flow` wheel — the ramp palettes get their colour
+       from a stop list, not from HSL. Say so rather than silently no-op. */
+    case 'sat': case 'lum': {
+      const isSat = cmd === 'sat';
+      if (!isFinite(parseFloat(arg))) {
+        print(`${isSat ? 'saturation' : 'lightness ceiling'}: ${P[cmd]}   (give me a number to change it)`);
+        return;
+      }
+      setNum(cmd, arg, isSat ? 0 : 0.35, 1, isSat ? 'saturation' : 'lightness ceiling');
+      buildPalette(P.palette);
+      if (P.palette !== 'flow') print('note: only the flow palette reads this', 'out');
+      return;
+    }
+
+    /* ── the panel ───────────────────────────────────────────────── */
+    case 'skin': {
+      const name = arg.toLowerCase();
+      if (!SKIN_IDS.includes(name)) {
+        print('skins —');
+        SKIN_IDS.forEach(s =>
+          print('  ' + s.padEnd(7) + SKINS[s] + (s === currentSkin ? '   ← now' : '')));
+        return;
+      }
+      applySkin(name);
+      print('skin = ' + name + ' — ' + SKINS[name], 'ok');
       return;
     }
 
@@ -211,7 +245,8 @@ cmdEl.addEventListener('keydown', e => {
     if (!stem) return;
     const words = ['help', 'ident', 'work', 'built', 'stack', 'resume', 'source',
                    'solid ', 'wind ', 'vort ', 'visc ', 'fade ', 'iter ',
-                   'palette ', 'life ', 'echo ', 'flush', 'reset', 'clear', 'whoami'];
+                   'palette ', 'sat ', 'lum ', 'skin ', 'life ', 'echo ',
+                   'flush', 'reset', 'clear', 'whoami'];
     const hit = words.find(w => w.startsWith(stem));
     if (hit) cmdEl.value = hit;
     return;
