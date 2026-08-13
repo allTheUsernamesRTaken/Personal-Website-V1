@@ -10,7 +10,8 @@
 
 const SKINS = {
   night: 'translucent dark panel, amber viewfinder ticks — the original',
-  deck:  'frame drawn as box characters on the sim grid, lit by the flow',
+  steel: 'box-character frame on the sim grid, cold until the flow lights it',
+  rime:  'no frame — smoke accreting on the panel, drawn in the sim\'s own ramp',
   cut:   'opaque bone slab, black type, hard offset shadow — wins on value',
   block: 'dark, chromatic, full-length edge bars — wins on scale'
 };
@@ -18,19 +19,24 @@ const SKINS = {
 const SKIN_IDS = Object.keys(SKINS);
 const SKIN_KEY = 'dg.skin';
 
+/* Old names that shipped before, so a saved preference doesn't fall back to
+   night and look like the setting was lost. */
+const SKIN_ALIASES = { deck: 'steel' };
+
 let currentSkin = 'night';
 
 function applySkin(name) {
+  name = SKIN_ALIASES[name] || name;
   if (!SKIN_IDS.includes(name)) return false;
   currentSkin = name;
   document.documentElement.dataset.skin = name;
 
   try { localStorage.setItem(SKIN_KEY, name); } catch (e) { /* private mode */ }
 
-  /* deck snaps the panel to the cell lattice and builds its frame; every
-     other skin has to hand those inline styles back. deckFrameSync() does
-     both, and calls rebuildSolids() itself once the rect is final. */
-  if (typeof deckFrameSync === 'function') deckFrameSync();
+  /* steel and rime snap the panel to the cell lattice and build a boundary;
+     every other skin has to hand those inline styles back. charFrameSync()
+     does both, and calls rebuildSolids() itself once the rect is final. */
+  if (typeof charFrameSync === 'function') charFrameSync();
   else if (typeof rebuildSolids === 'function') rebuildSolids();
   return true;
 }
@@ -40,6 +46,7 @@ function applySkin(name) {
 (function restoreSkin() {
   let saved = null;
   try { saved = localStorage.getItem(SKIN_KEY); } catch (e) { /* ignore */ }
+  saved = SKIN_ALIASES[saved] || saved;
   if (SKIN_IDS.includes(saved)) currentSkin = saved;
   document.documentElement.dataset.skin = currentSkin;
 })();

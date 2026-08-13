@@ -51,8 +51,8 @@ const HELP = [
   'flush           empty the tank     reset        back to defaults',
   '',
   'the panel —',
-  'skin <night|deck|cut|block>   how the panel sits on top of the field',
-  '                deck draws its frame into the sim grid — try `wind` after',
+  'skin <night|steel|rime|cut|block>   how the panel sits on the field',
+  '                steel and rime draw into the sim grid — run `wind` after',
   '',
   'clear           clear this log'
 ];
@@ -197,7 +197,7 @@ function runCommand(raw) {
 
     /* ── the fun ones ────────────────────────────────────────────── */
     case 'whoami':
-      print('daniel — waterloo cs+ml. currently teaching robots which way a hinge opens.'); return;
+      print('daniel — waterloo 2030. currently teaching robots which way a hinge opens.'); return;
     case 'uname':
       print('fluid 1.0 · stable-fluids/1999 · ' + COLS + 'x' + ROWS + ' cells · js'); return;
     case 'ls':
@@ -210,7 +210,7 @@ function runCommand(raw) {
       }
       print('rm: ' + (arg || 'missing operand'), 'err'); return;
     case 'cheese':
-      print('UW Cheese Club. it is a real club. i am a real member. ask me about comté.', 'ok'); return;
+      print('UW Cheese Club, ask me about comté.', 'ok'); return;
     case 'exit': case 'quit':
       print('there is nowhere to go, the page is the terminal.'); return;
 

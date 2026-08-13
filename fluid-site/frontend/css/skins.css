@@ -147,30 +147,27 @@
 [data-skin="block"] .console { border-top-width: 2px; }
 
 
-/* ── deck ────────────────────────────────────────────────────────────
-   night, but the frame is built out of the same material as the rest of the
-   page instead of out of CSS. The border and the corner ticks are gone; a
-   canvas draws box-drawing characters on the sim's own lattice, coloured per
-   glyph by the flow going past. See js/ui/deckFrame.js — nearly all of this
-   skin lives there, because a character frame is geometry, not styling.
+/* ── steel & rime ────────────────────────────────────────────────────
+   Both draw their boundary as characters on the sim's own lattice rather
+   than as a CSS border — same font, same pitch, same grid. Nearly all of
+   both skins lives in js/ui/charFrame.js, because a character boundary is
+   geometry, not styling. What's left here is the surface underneath it.
 
-   The padding here is the only real constraint: it has to clear the two-cell
-   band the frame occupies, or the frame lands on the text. */
-[data-skin="deck"] #panel {
-  --panel:      rgba(3, 5, 11, 0.90);
-  --frame-w:    0px;
-  --frame:      transparent;
-
-  /* Structural colour for the frame glyphs, read by deckFrame.js. Near
-     neutral on purpose — it's what the flow tint reads against, and a
-     chromatic base would fight the hue it's being tinted with. */
-  --deck-frame: #8a97a8;
-
+   The padding is the real constraint: it has to clear the two-cell band the
+   boundary occupies, or the boundary lands on the text. */
+[data-skin="steel"] #panel,
+[data-skin="rime"] #panel {
+  --panel:   rgba(3, 5, 11, 0.90);
+  --frame-w: 0px;
+  --frame:   transparent;
   padding: 38px 34px 26px;
 }
-[data-skin="deck"] #panel::before { content: none; }
 
-[data-skin="deck"] #deckframe {
+[data-skin="steel"] #panel::before,
+[data-skin="rime"] #panel::before { content: none; }
+
+[data-skin="steel"] #charframe,
+[data-skin="rime"] #charframe {
   position: absolute;
   left: 0;
   top: 0;
@@ -178,12 +175,29 @@
   z-index: 4;
 }
 
-[data-skin="deck"] .console { margin: 0 -34px; padding: 0 34px; }
+[data-skin="steel"] .console,
+[data-skin="rime"] .console { margin: 0 -34px; padding: 0 34px; }
+
+/* Base colour for the glyphs, read by charFrame.js.
+
+   steel is deliberately near-neutral and emissive rather than metallic. The
+   rest of the page is emissive — glyphs glowing on black, colour from
+   velocity, brightness from energy — and nothing is lit by anything, so a
+   reflective material would imply a light source and a surface that exist
+   nowhere else. Cold grey that brightens on an event, not chrome. */
+[data-skin="steel"] #panel { --char-ink: #9aa6b4; }
+
+/* rime is frost, so it leans cold and pale. Its variation is carried by
+   which glyph gets drawn, not by hue. */
+[data-skin="rime"] #panel { --char-ink: #cfe4f2; }
 
 @media (max-width: 760px) {
   /* Cells are 8x9 here rather than 11x12, so the band is smaller too. */
-  [data-skin="deck"] #panel { padding: 30px 26px 22px; }
-  [data-skin="deck"] .console { margin: 0 -26px; padding: 0 26px; }
+  [data-skin="steel"] #panel,
+  [data-skin="rime"] #panel { padding: 30px 26px 22px; }
+
+  [data-skin="steel"] .console,
+  [data-skin="rime"] .console { margin: 0 -26px; padding: 0 26px; }
 }
 
 

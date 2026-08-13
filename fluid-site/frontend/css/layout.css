@@ -83,15 +83,15 @@
 #hud b { color: var(--acc-soft); font-weight: normal; }
 
 /* ── phones ──────────────────────────────────────────────────────────
-   Anchored to the bottom rather than centred, so the fluid keeps a real
-   band across the top instead of a 4px sliver. That band is also where
+   Anchored to the top rather than centred, so the fluid keeps a real
+   band across the bottom instead of a 4px sliver. That band is also where
    freeRegion() puts the intro stamp, so the name still condenses out of
    the smoke on a phone. */
 @media (max-width: 760px) {
   #panel {
     left: 10px; right: 10px; width: auto;
-    top: auto;
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    top: calc(10px + env(safe-area-inset-top, 0px));
+    bottom: auto;
     transform: none;
     height: 70vh;
     height: 70dvh;
