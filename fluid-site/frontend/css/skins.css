@@ -147,6 +147,46 @@
 [data-skin="block"] .console { border-top-width: 2px; }
 
 
+/* ── deck ────────────────────────────────────────────────────────────
+   night, but the frame is built out of the same material as the rest of the
+   page instead of out of CSS. The border and the corner ticks are gone; a
+   canvas draws box-drawing characters on the sim's own lattice, coloured per
+   glyph by the flow going past. See js/ui/deckFrame.js — nearly all of this
+   skin lives there, because a character frame is geometry, not styling.
+
+   The padding here is the only real constraint: it has to clear the two-cell
+   band the frame occupies, or the frame lands on the text. */
+[data-skin="deck"] #panel {
+  --panel:      rgba(3, 5, 11, 0.90);
+  --frame-w:    0px;
+  --frame:      transparent;
+
+  /* Structural colour for the frame glyphs, read by deckFrame.js. Near
+     neutral on purpose — it's what the flow tint reads against, and a
+     chromatic base would fight the hue it's being tinted with. */
+  --deck-frame: #8a97a8;
+
+  padding: 38px 34px 26px;
+}
+[data-skin="deck"] #panel::before { content: none; }
+
+[data-skin="deck"] #deckframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+[data-skin="deck"] .console { margin: 0 -34px; padding: 0 34px; }
+
+@media (max-width: 760px) {
+  /* Cells are 8x9 here rather than 11x12, so the band is smaller too. */
+  [data-skin="deck"] #panel { padding: 30px 26px 22px; }
+  [data-skin="deck"] .console { margin: 0 -26px; padding: 0 26px; }
+}
+
+
 /* ── shared by both new skins ────────────────────────────────────────
    Scale contrast against the 11×12px cell lattice. Small on its own, but
    it's the difference between the panel reading as a surface and reading

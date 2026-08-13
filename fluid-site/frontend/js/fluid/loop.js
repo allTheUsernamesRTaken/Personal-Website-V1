@@ -17,6 +17,7 @@ function loop(now) {
   render();
   packetLifeRender();
   _lifeLast = now;
+  deckFrameFrame(now);      // no-op unless the deck skin is on
   hudFrame(now);
   requestAnimationFrame(loop);
 }
@@ -28,6 +29,7 @@ function simNow() { return (performance.now() - _origin) / 1000; }
 function boot(now) {
   _origin = now;
   rebuildSolids();       // needs layout, so after first paint
+  deckFrameSync();       // ditto — it measures the panel before snapping it
   introSequence();
   requestAnimationFrame(loop);
 }

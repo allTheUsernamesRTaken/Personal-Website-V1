@@ -51,7 +51,8 @@ const HELP = [
   'flush           empty the tank     reset        back to defaults',
   '',
   'the panel —',
-  'skin <night|cut|block>   how the panel sits on top of the field',
+  'skin <night|deck|cut|block>   how the panel sits on top of the field',
+  '                deck draws its frame into the sim grid — try `wind` after',
   '',
   'clear           clear this log'
 ];
