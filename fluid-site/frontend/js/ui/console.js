@@ -54,6 +54,7 @@ const HELP = [
   'open <solver|detail>   opens a window; it becomes a body in the flow',
   'close <name|all>       closes it, and its wake collapses',
   'panels                 what is open        (drag a window by its bar)',
+  'displace on|off        moving bodies shove smoke rather than erase it',
   '',
   'the panel —',
   'skin <night|steel|rime|cut|block>   how the panel sits on the field',
@@ -187,6 +188,19 @@ function runCommand(raw) {
       print('closed ' + hit + ' — watch its wake collapse', 'ok');
       return;
     }
+    /* Worth having as a switch rather than just a fix: flipping it off is
+       the fastest way to see what a moving obstacle looked like before. */
+    case 'displace': {
+      const a = arg.toLowerCase();
+      P.displace = a === 'off' || a === '0' ? false
+                 : a === 'on' || a === '1'  ? true
+                 : !P.displace;
+      print(P.displace
+        ? 'moving bodies displace smoke — drag a window through a gust'
+        : 'moving bodies erase what they cover (the old behaviour)', 'ok');
+      return;
+    }
+
     case 'panels': {
       const open = listOpenPanels();
       print('available: ' + Object.keys(PANEL_DEFS).join(' · '));

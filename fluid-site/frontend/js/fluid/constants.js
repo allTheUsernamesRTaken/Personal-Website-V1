@@ -18,6 +18,7 @@ const P = {
   dt        : 0.16,
   wind      : 0,                   // ambient current — off. see ambient.js
   solids    : true,                // panel is a solid body in the flow
+  displace  : true,                // moving bodies shove smoke instead of erasing it
   palette   : 'flow',
 
   /* Palette shape, for the `flow` wheel. sat is HSL saturation. lum is the
