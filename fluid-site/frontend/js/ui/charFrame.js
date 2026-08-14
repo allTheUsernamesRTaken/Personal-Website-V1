@@ -39,7 +39,13 @@ let cfCanvas = null, cfCtx = null;
 let cfGeom   = null;                    // { i0, j0, W, H, cw, ch }
 let cfSlots  = [];                      // { u, v, ch?, w?, d? } — what to draw where
 let cfInk    = [200, 210, 220];         // base colour, from --char-ink
+let cfMet    = null;                    // glyph tiling metrics, see sizeCanvas
 let _cfLast  = 0;
+
+/* Cell -> draw position. With tiling metrics the canvas is under a per-axis
+   scale, so these are in pre-scale units; without them, plain CSS pixels. */
+function gx(u) { return cfMet ? u * cfMet.ax : u * cfGeom.cw; }
+function gy(v) { return cfMet ? v * cfMet.ay + cfMet.oy : v * cfGeom.ch; }
 
 /* Smoothing state, parallel to cfSlots. Velocity is smoothed as a vector
    rather than as a hue: averaging hues wraps catastrophically at 0/360. */
@@ -194,7 +200,7 @@ function drawSteel(g) {
       bl = bl * (1 - t) + f[2] * t;
     }
     cfCtx.fillStyle = 'rgb(' + (r | 0) + ',' + (gr | 0) + ',' + (bl | 0) + ')';
-    cfCtx.fillText(c.ch, c.u * g.cw, c.v * g.ch);
+    cfCtx.fillText(c.ch, gx(c.u), gy(c.v));
   }
 }
 
@@ -239,14 +245,16 @@ function drawRime(g) {
       bl = bl * (1 - w) + f[2] * w;
     }
     cfCtx.fillStyle = 'rgb(' + (r | 0) + ',' + (gr | 0) + ',' + (bl | 0) + ')';
-    cfCtx.fillText(CHARS[ci], c.u * g.cw, c.v * g.ch);
+    cfCtx.fillText(CHARS[ci], gx(c.u), gy(c.v));
   }
 }
 
 function drawFrame() {
   if (!cfCtx || !cfGeom) return;
   const g = cfGeom;
-  cfCtx.clearRect(0, 0, g.W * g.cw, g.H * g.ch);
+  // clearRect is under the same transform as fillText, so it needs the same units.
+  if (cfMet) cfCtx.clearRect(0, 0, cfMet.cw, cfMet.ch);
+  else cfCtx.clearRect(0, 0, g.W * g.cw, g.H * g.ch);
   if (charSkin() === 'rime') drawRime(g); else drawSteel(g);
 }
 
@@ -289,6 +297,20 @@ function ensureCanvas() {
   cfCtx = cfCanvas.getContext('2d');
 }
 
+/* Box-drawing characters only join into continuous rules when one glyph box
+   is exactly one cell. They are not, by default: at a 13px font the advance
+   is about 7.8px inside an 11px cell, so roughly 30% of every cell is empty
+   and each rule comes out as a row of separated dashes — which reads as
+   corrosion, not as a frame.
+
+   The cell here is ~11.03 x 12.1, aspect 0.91; monospace glyphs are aspect
+   ~0.6. No single font size can tile both axes, so the glyph gets scaled per
+   axis to fill the cell. Box characters are strokes, so stretching them is
+   invisible; the nameplate letters come out slightly extended, which is the
+   only visible cost and is period-correct anyway.
+
+   U+2588 FULL BLOCK is the reference because it's drawn to fill exactly one
+   character cell, so its bounding box is the tile the font intends. */
 function sizeCanvas() {
   const g = cfGeom;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -300,17 +322,47 @@ function sizeCanvas() {
   cfCanvas.height = Math.round(h * dpr);
 
   cfCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  // The sim's font, corrected for the stretch between its backing store and
-  // its display width, so these glyphs match the ones behind them.
-  cfCtx.font = ((CW + 2) * (g.cw / CW)).toFixed(2) + 'px ' + MONO;
   cfCtx.textAlign = 'left';
   cfCtx.textBaseline = 'top';
+
+  // Measure near the cell height so the correction stays close to 1 on y.
+  const probe = Math.max(6, g.ch);
+  cfCtx.font = probe.toFixed(2) + 'px ' + MONO;
+
+  const m = cfCtx.measureText('█');
+  const adv = m.width;
+  const asc = m.actualBoundingBoxAscent;
+  const desc = m.actualBoundingBoxDescent;
+  const box = (asc + desc);
+
+  if (!(adv > 0) || !isFinite(box) || box <= 0) {
+    // No glyph metrics (very old engine, or the block is missing from every
+    // font in the stack). Fall back to the sim's own sizing, dashes and all.
+    cfCtx.font = ((CW + 2) * (g.cw / CW)).toFixed(2) + 'px ' + MONO;
+    cfMet = null;
+    return;
+  }
+
+  /* Under scale (sx, sy), a glyph drawn at (px, py) covers
+       x: [px*sx, (px + adv)*sx]      y: [(py - asc)*sy, (py + desc)*sy]
+     Solving for one glyph == one cell gives the step and origin below. */
+  const sx = g.cw / adv, sy = g.ch / box;
+  cfCtx.setTransform(dpr * sx, 0, 0, dpr * sy, 0, 0);
+
+  cfMet = {
+    ax: adv,                 // x step per cell, in pre-scale units
+    ay: box,                 // y step per cell
+    oy: asc,                 // y origin, so the box's top lands on the cell top
+    cw: g.W * adv,           // clearRect extents, also pre-scale
+    ch: g.H * box
+  };
 }
 
 function charFrameTeardown() {
   if (cfCanvas) { cfCanvas.remove(); cfCanvas = null; cfCtx = null; }
   cfSlots = [];
   cfGeom = null;
+  cfMet = null;
   sA = sB = sD = sAcc = null;
   if (panelEl) clearSnap();
 }
