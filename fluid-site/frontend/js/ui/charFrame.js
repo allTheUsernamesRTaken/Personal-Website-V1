@@ -325,6 +325,16 @@ function sizeCanvas() {
   cfCtx.textAlign = 'left';
   cfCtx.textBaseline = 'top';
 
+  /* Only steel needs to tile. rime draws from the sim's density ramp, and
+     those glyphs are meant to be sparse and separated — they're the same
+     marks the fluid is made of, so they should be the same size and shape as
+     the fluid's, not stretched to fill a cell they were never filling. */
+  if (charSkin() === 'rime') {
+    cfCtx.font = ((CW + 2) * (g.cw / CW)).toFixed(2) + 'px ' + MONO;
+    cfMet = null;
+    return;
+  }
+
   // Measure near the cell height so the correction stays close to 1 on y.
   const probe = Math.max(6, g.ch);
   cfCtx.font = probe.toFixed(2) + 'px ' + MONO;
