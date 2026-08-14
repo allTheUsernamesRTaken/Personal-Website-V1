@@ -1,7 +1,6 @@
 /* input.js — mouse / touch into the velocity field. */
 
 let prevCi = -1, prevCj = -1;
-let feeding = false;
 
 function getCell(cx, cy) {
   const r = canvas.getBoundingClientRect();
@@ -34,35 +33,24 @@ function burstAt(ci, cj) {
 }
 
 document.addEventListener('mousemove', e => {
-  if (overPanel(e)) {
-    prevCi = -1; prevCj = -1;
-    packetLife.lastPointerI = -1; packetLife.lastPointerJ = -1;
-    return;
-  }
+  if (overPanel(e)) { prevCi = -1; prevCj = -1; return; }
   const { ci, cj } = getCell(e.clientX, e.clientY);
   noteUserInput();
   applyMove(ci, cj);
-  packetLifePointer(ci, cj);
 });
 
 document.addEventListener('mouseleave', () => { prevCi = -1; prevCj = -1; });
 
+/* Nothing here knows about life any more. Feeding used to hang off this same
+   handler, which meant the click that dropped food also fired the burst that
+   blew it away; food is released from the habitat panel now, and this drag is
+   just a drag — which is what makes it usable for steering. */
 document.addEventListener('mousedown', e => {
   if (overPanel(e)) return;
   const { ci, cj } = getCell(e.clientX, e.clientY);
   noteUserInput();
   burstAt(ci, cj);
-  if (e.button === 0) { feeding = true; packetLifeDropFood(ci, cj, performance.now()); }
 });
-
-document.addEventListener('mouseup', e => { if (e.button === 0) feeding = false; });
-window.addEventListener('blur', () => { feeding = false; });
-
-function packetLifeInputFrame(now) {
-  if (feeding && packetLife.lastPointerI >= 0) {
-    packetLifeDropFood(packetLife.lastPointerI, packetLife.lastPointerJ, now);
-  }
-}
 
 function getTouchCell(e) {
   if (!e.touches || !e.touches.length) return null;

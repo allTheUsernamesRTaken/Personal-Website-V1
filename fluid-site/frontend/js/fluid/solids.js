@@ -24,7 +24,7 @@ function unregisterSolid(el) {
   if (i >= 0) solidEls.splice(i, 1);
 }
 
-function stampRect(r, cw, ch) {
+function stampRect(r, cw, ch, target = solid) {
   // Inset by a cell so the boundary layer has somewhere to live.
   const i0 = Math.max(1, Math.floor(r.left / cw) + 1);
   const i1 = Math.min(COLS - 2, Math.ceil(r.right / cw) - 1);
@@ -33,7 +33,7 @@ function stampRect(r, cw, ch) {
   if (i1 < i0 || j1 < j0) return;              // smaller than its own boundary layer
 
   for (let j = j0; j <= j1; j++) {
-    for (let i = i0; i <= i1; i++) solid[j * COLS + i] = 1;
+    for (let i = i0; i <= i1; i++) target[j * COLS + i] = 1;
   }
 }
 
@@ -60,7 +60,13 @@ function stampRect(r, cw, ch) {
    PUSH_R caps how far mass will search for somewhere to go. It's what makes
    a window opening on top of smoke shove it out around the edges rather
    than teleport the whole footprint to the perimeter. */
-const PUSH_R = 5;
+// Motion tuning. Keep both deliberately conservative: a panel should nudge
+// its immediate neighbourhood, not launch a second disturbance elsewhere.
+const PUSH_R = 3;
+const MAX_BODY_SHOVE = 0.32;
+const DISPLACED_MASS_VELOCITY_FACTOR = 0.12;
+const LEADING_FACE_FACTOR = 0.045;
+const SPAWN_RELEASE_VELOCITY_FACTOR = 0.035;
 
 let solidPrev = null;
 const lastRect = new WeakMap();
@@ -74,8 +80,8 @@ function cellIdx(i, j) {
    first at each radius, so a dragged body pushes its smoke forward rather
    than sideways; with no travel the ring search finds whatever is closest,
    which for a newly opened window is straight out through the nearest edge. */
-function freeCellNear(i, j, dirx, diry) {
-  for (let r = 1; r <= PUSH_R; r++) {
+function freeCellNear(i, j, dirx, diry, maxRadius = PUSH_R) {
+  for (let r = 1; r <= maxRadius; r++) {
     if (dirx || diry) {
       const t = cellIdx(i + Math.round(dirx * r), j + Math.round(diry * r));
       if (t >= 0 && !solid[t]) return t;
@@ -90,22 +96,26 @@ function freeCellNear(i, j, dirx, diry) {
   return -1;                                     // walled in; this mass is lost
 }
 
-function displaceCovered(mvx, mvy) {
+function displaceCovered(mvx, mvy, movingSolid) {
   const sp = Math.sqrt(mvx * mvx + mvy * mvy);
   const dirx = sp > 1e-4 ? mvx / sp : 0;
   const diry = sp > 1e-4 ? mvy / sp : 0;
+  // A newly opened window has no travel direction, but it should still part
+  // the existing smoke instead of erasing its footprint. Search far enough
+  // to reach its perimeter and relocate the density in the same rebuild.
+  const spawnRadius = sp <= 1e-3 ? Math.max(COLS, ROWS) : PUSH_R;
   // Same scale the mouse uses in input.js, so a dragged panel and a dragged
   // cursor shove with comparable force.
-  const shove = Math.min(sp * 2.2, 1) * P.injVel;
+  const shove = Math.min(sp * 0.8, MAX_BODY_SHOVE) * P.injVel;
 
   for (let j = 1; j < ROWS - 1; j++) {
     for (let i = 1; i < COLS - 1; i++) {
       const k = j * COLS + i;
       if (!solid[k] || solidPrev[k]) continue;   // only cells that just got covered
       const d = dens[k];
-      if (d <= 1e-4) continue;
+      if (d <= 0) continue;
 
-      const t = freeCellNear(i, j, dirx, diry);
+      const t = freeCellNear(i, j, dirx, diry, spawnRadius);
       if (t < 0) continue;
       dens[t] += d;
       dens[k] = 0;
@@ -113,7 +123,9 @@ function displaceCovered(mvx, mvy) {
       // Shove along the displacement itself, so it's outward either way.
       const odx = (t % COLS) - i, ody = ((t / COLS) | 0) - j;
       const olen = Math.sqrt(odx * odx + ody * ody) || 1;
-      const mag = sp > 1e-3 ? shove * 0.5 : P.injVel * 0.22;
+      const mag = sp > 1e-3
+        ? shove * DISPLACED_MASS_VELOCITY_FACTOR
+        : P.injVel * SPAWN_RELEASE_VELOCITY_FACTOR;
       vx[t] += (odx / olen) * mag;
       vy[t] += (ody / olen) * mag;
     }
@@ -128,14 +140,17 @@ function displaceCovered(mvx, mvy) {
 
   for (let j = 1; j < ROWS - 1; j++) {
     for (let i = 1; i < COLS - 1; i++) {
-      if (!solid[j * COLS + i]) continue;
+      // Only the body that moved gets a moving-wall impulse. Previously this
+      // loop touched every open panel, so dragging one could create a wake
+      // beside a stationary window on the other side of the screen.
+      if (!movingSolid[j * COLS + i]) continue;
       if (si) {
         const t = cellIdx(i + si, j);
-        if (t >= 0 && !solid[t]) { vx[t] += dirx * shove * 0.35; vy[t] += diry * shove * 0.35; }
+        if (t >= 0 && !solid[t]) { vx[t] += dirx * shove * LEADING_FACE_FACTOR; vy[t] += diry * shove * LEADING_FACE_FACTOR; }
       }
       if (sj) {
         const t = cellIdx(i, j + sj);
-        if (t >= 0 && !solid[t]) { vx[t] += dirx * shove * 0.35; vy[t] += diry * shove * 0.35; }
+        if (t >= 0 && !solid[t]) { vx[t] += dirx * shove * LEADING_FACE_FACTOR; vy[t] += diry * shove * LEADING_FACE_FACTOR; }
       }
     }
   }
@@ -155,6 +170,7 @@ function rebuildSolids() {
   const cw = window.innerWidth  / COLS;
   const ch = window.innerHeight / ROWS;
   let mvx = 0, mvy = 0;
+  const movingSolid = new Uint8Array(N);
 
   for (let k = 0; k < solidEls.length; k++) {
     const el = solidEls[k];
@@ -162,13 +178,19 @@ function rebuildSolids() {
     const r = el.getBoundingClientRect();
 
     const prev = lastRect.get(el);
-    if (prev) { mvx += (r.left - prev.left) / cw; mvy += (r.top - prev.top) / ch; }
+    if (prev) {
+      const dx = (r.left - prev.left) / cw;
+      const dy = (r.top - prev.top) / ch;
+      mvx += dx;
+      mvy += dy;
+      if (Math.abs(dx) > 1e-3 || Math.abs(dy) > 1e-3) stampRect(r, cw, ch, movingSolid);
+    }
     lastRect.set(el, { left: r.left, top: r.top });
 
     if (P.solids) stampRect(r, cw, ch);
   }
 
-  if (!resized && P.solids && P.displace) displaceCovered(mvx, mvy);
+  if (!resized && P.solids && P.displace) displaceCovered(mvx, mvy, movingSolid);
 }
 
 /* Grid is sized off the viewport, so a resize means a full realloc.

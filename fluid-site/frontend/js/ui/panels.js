@@ -24,7 +24,8 @@ const SUB_MIN_W = 260;
 const SUB_FPS   = 10;                    // live panels only; drag restamps separately
 
 /* Definitions. Adding a panel is adding an entry here — build() returns the
-   body element, and live() is optional and runs on the tick. */
+   body element, live() is optional and runs on the tick, and open()/close()
+   are optional hooks for a panel that owns something outside itself. */
 const PANEL_DEFS = {
   solver: {
     title: 'solver',
@@ -36,6 +37,20 @@ const PANEL_DEFS = {
     title: 'detail',
     w: 380, h: 300,
     build: buildDetailBody
+  },
+  /* The only panel that is load-bearing rather than informational: it isn't
+     a window onto the habitat, it *is* the habitat. Its own bounding box is
+     the solid body whose lee the organisms shelter in, and the vent hangs
+     off its live rect — so dragging this window herds them. */
+  life: {
+    title: 'life',
+    w: 300, h: 292,
+    build: buildLifeBody,
+    live:  updateLifeBody,
+    guard: () => lifeIsAvailable()
+      ? '' : (REDUCED ? 'life respects reduced motion' : 'life is desktop-only'),
+    open:  el => packetLifeSetEnabled(true, el),
+    close: () => packetLifeSetEnabled(false)
   }
 };
 
@@ -150,12 +165,75 @@ function buildDetailBody(arg) {
   return d;
 }
 
+/* The habitat's instrument face. Everything on it is read off the same
+   solver the rest of the page runs on — `shelter` is the mean flow speed at
+   the organisms, so watching it fall is watching them find the wake. */
+function buildLifeBody() {
+  const d = document.createElement('div');
+  d.className = 'sp-body sp-life';
+  d.innerHTML =
+    '<dl class="sp-kv">' +
+    '<dt>pop</dt><dd data-f="pop">—</dd>' +
+    '<dt>fed</dt><dd data-f="fed">—</dd>' +
+    '<dt>adrift</dt><dd data-f="adrift">—</dd>' +
+    '<dt>vented</dt><dd data-f="vented">—</dd>' +
+    '<dt>shelter</dt><dd data-f="shelter">—</dd>' +
+    '</dl>' +
+    '<button class="sp-vent" type="button">release food ▸</button>' +
+    '<p class="sp-note">food is a passive tracer — it goes where the field ' +
+    'takes it. drag your cursor to steer a plume onto them, and drag this ' +
+    'window to move the calm water they are sitting in.</p>';
+
+  /* Hold to keep venting. The pointer events are stopped here rather than
+     allowed to bubble: the document-level mouse handler injects velocity
+     wherever it fires, and a control that stirred the tank every time you
+     used it would be the same design mistake this rewrite is undoing. */
+  const vent = d.querySelector('.sp-vent');
+  const stop = e => e.stopPropagation();
+  vent.addEventListener('mousedown', stop);
+  vent.addEventListener('pointerdown', e => {
+    stop(e);
+    vent.setPointerCapture(e.pointerId);
+    packetLifeRelease(performance.now());
+    packetLifeSetVenting(true);
+  });
+  const release = () => packetLifeSetVenting(false);
+  vent.addEventListener('pointerup', release);
+  vent.addEventListener('pointercancel', release);
+  vent.addEventListener('blur', release);
+
+  return d;
+}
+
+function updateLifeBody(body) {
+  const s = lifeStats();
+  const set = (k, v) => {
+    const el = body.querySelector('[data-f="' + k + '"]');
+    if (el && el.textContent !== v) el.textContent = v;
+  };
+  set('pop', String(s.pop));
+  set('fed', s.fed.toFixed(2));
+  set('adrift', String(s.adrift));
+  set('vented', String(s.released));
+  set('shelter', s.shelter.toFixed(2) + ' cell/s');
+}
+
 /* ── open / close ─────────────────────────────────────────────────────── */
 function panelKey(id, arg) { return arg ? id + ':' + arg : id; }
 
+/* Why the last openPanel() refused, so the console can say something better
+   than "no such panel" when a panel exists but can't run here. */
+let lastPanelError = '';
+
 function openPanel(id, arg) {
   const def = PANEL_DEFS[id];
+  lastPanelError = '';
   if (!def) return false;
+
+  if (def.guard) {
+    const why = def.guard();
+    if (why) { lastPanelError = why; return false; }
+  }
 
   const key = panelKey(id, arg);
   if (openPanels.has(key)) { focusPanel(key); return true; }
@@ -192,6 +270,11 @@ function openPanel(id, arg) {
      mask won't know about it until something else moves. */
   registerSolid(el);
   rebuildSolids();
+
+  /* After the mask, because a panel that owns something in the field wants
+     to see the field with itself already in it — the habitat picks its vent
+     face by reading the flow around its own body. */
+  if (def.open) def.open(el, body);
   if (def.live) def.live(body);
   return true;
 }
@@ -199,6 +282,7 @@ function openPanel(id, arg) {
 function closePanel(key) {
   const p = openPanels.get(key);
   if (!p) return false;
+  if (p.def.close) p.def.close(p.el, p.body);
   unregisterSolid(p.el);
   p.el.remove();
   openPanels.delete(key);

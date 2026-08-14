@@ -46,15 +46,20 @@ const HELP = [
   'palette <flow|thermal|ember|mono>',
   'sat <0-1>       hue saturation      lum <0.35-1>  lightness ceiling',
   '                lower lum = more chromatic, less wash-out (flow only)',
-  'life on|off    optional digital microfauna; click/hold the background to feed',
   'echo <text>     rasterise text straight into the density field',
   'flush           empty the tank     reset        back to defaults',
   '',
   'panels —',
-  'open <solver|detail>   opens a window; it becomes a body in the flow',
+  'open <solver|detail|life>   opens a window; it becomes a body in the flow',
   'close <name|all>       closes it, and its wake collapses',
   'panels                 what is open        (drag a window by its bar)',
   'displace on|off        moving bodies shove smoke rather than erase it',
+  '',
+  'life —',
+  'open life       a habitat. the panel is a solid body, so there is slow',
+  '                water behind it, and things that want slow water go there',
+  '                release food, then steer the plume with your cursor —',
+  '                food drifts with the field, it does not sit where it fell',
   '',
   'the panel —',
   'skin <night|steel|rime|cut|block>   how the panel sits on the field',
@@ -168,7 +173,8 @@ function runCommand(raw) {
         return;
       }
       if (!openPanel(id, parts2[1])) {
-        print('open: no panel `' + id + '` — try ' + Object.keys(PANEL_DEFS).join(' · '), 'err');
+        print(lastPanelError ||
+          ('open: no panel `' + id + '` — try ' + Object.keys(PANEL_DEFS).join(' · ')), 'err');
         return;
       }
       print('opened ' + id + ' — it is a solid body too, drag it into the wake', 'ok');
@@ -222,11 +228,22 @@ function runCommand(raw) {
       return;
     }
 
+    /* `life` is a panel now, not a mode. Opening one puts a body in the flow
+       and the organisms move into its lee, which is the whole idea — so the
+       command is kept as an alias rather than a second way to do it. */
     case 'life': {
       const a = arg.toLowerCase();
-      if (a !== 'on' && a !== 'off') { print('life on|off   (now: ' + (packetLife.enabled ? 'on' : 'off') + ')'); return; }
-      const result = packetLifeSetEnabled(a === 'on');
-      print(result.message, result.ok ? 'ok' : 'err');
+      if (a !== 'on' && a !== 'off') {
+        print('life on|off   (now: ' + (packetLife.enabled ? 'on' : 'off') + ')');
+        print('  opens the habitat panel — it is the body they shelter behind');
+        return;
+      }
+      if (a === 'off') {
+        print(closePanel('life') ? 'habitat closed' : 'no habitat open', 'ok');
+        return;
+      }
+      if (!openPanel('life')) { print(lastPanelError || 'life: cannot open here', 'err'); return; }
+      print('habitat open — hold `release food`, then steer the plume with your cursor', 'ok');
       return;
     }
 
@@ -245,7 +262,7 @@ function runCommand(raw) {
       cancelGust();
       buildPalette(P.palette);
       rebuildSolids();
-      packetLifeSetEnabled(false);
+      closePanel('life');
       print('back to defaults', 'ok');
       return;
 

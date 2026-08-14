@@ -92,7 +92,29 @@
 .sp-kv dt { color: var(--dim); letter-spacing: 0.06em; }
 .sp-kv dd { color: var(--txt); }
 
-.sp-solver .sp-kv dd { font-variant-numeric: tabular-nums; }
+.sp-solver .sp-kv dd,
+.sp-life .sp-kv dd { font-variant-numeric: tabular-nums; }
+
+/* The one control on a subpanel that does something to the field, so it gets
+   the accent the title bar gets. Held, not clicked — it vents while down. */
+.sp-vent {
+  appearance: none;
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 7px 10px;
+  background: none;
+  border: 1px solid var(--line-hi);
+  color: var(--acc);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-align: left;
+  cursor: pointer;
+  touch-action: none;
+}
+.sp-vent:hover { border-color: var(--acc); color: var(--hi); }
+.sp-vent:active { background: var(--line); color: var(--hi); }
 
 .sp-note {
   margin-top: 12px;

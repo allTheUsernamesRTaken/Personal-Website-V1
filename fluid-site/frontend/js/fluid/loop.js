@@ -12,7 +12,6 @@ function loop(now) {
   _frame++;
   if (_frame % 2 === 0) step((now - _origin) / 1000);
   introFrame(now);
-  packetLifeInputFrame(now);
   packetLifeUpdate(_lifeLast ? (now - _lifeLast) / 1000 : 0, now);
   render();
   packetLifeRender();
