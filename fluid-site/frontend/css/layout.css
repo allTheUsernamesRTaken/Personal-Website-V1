@@ -33,22 +33,65 @@
   user-select: text;
 }
 
-/* Viewfinder corner ticks. Cheaper than it looks: eight 1px gradients. */
+/* Corner ticks. Four corners, one vocabulary, no two the same shape.
+
+   Eight hairlines, same as they always were. What changed is that the arm
+   lengths aren't equal, and they aren't arbitrary either: an arm is as long as
+   the edge it lies on is busy. The gust enters over the top edge at ~25°
+   (ambient.js), so the top is the stagnation edge and the right edge is what
+   the wake sheds down — both long. The bottom is a shear line and the left is
+   a six-cell gutter — both short.
+
+   Deriving it from the edges rather than per corner is what keeps it legible.
+   Long arms end up clustered top and right, which is the flow direction, and
+   every corner is still the same species of mark, so there's nothing new to
+   parse. Top-right gets both long arms and trails six cells down the wake
+   edge; bottom-left, in dead water, is the lightest mark on the page.
+
+   Nothing detached, and nothing along the middle of an edge. A tick reads as a
+   mark because two arms meet at a vertex — a lone segment mid-edge has no
+   vertex and no reference, so it reads as an artifact. And the long empty runs
+   of edge are the effect: fill them in and this becomes a dashed border.
+
+   Arms are whole cells of the sim lattice, not round pixel counts, so a tick
+   ends where a background glyph ends. js/ui/ticks.js samples the field just
+   outside each corner and writes that corner's --tk- (colour) and --tw-
+   (weight, 1px resting → 2px under load). Everything rests at a hairline; the
+   weight is purely an event channel, because a stroke with area stops reading
+   as a tick and starts reading as chrome. The fallbacks are the no-JS look. */
 #panel::before {
   content: '';
   position: absolute;
   inset: -1px;
   pointer-events: none;
+  --tk: var(--acc-soft);                /* resting amber, and the no-JS value */
+  --tw: 1px;                            /* resting stroke weight */
+  --arm-busy:  4;                       /* cells, along an edge the flow works */
+  --arm-quiet: 2;                       /* cells, along an edge it doesn't */
   background:
-    linear-gradient(var(--acc), var(--acc)) 0    0    / 1px  15px no-repeat,
-    linear-gradient(var(--acc), var(--acc)) 0    0    / 15px 1px  no-repeat,
-    linear-gradient(var(--acc), var(--acc)) 100% 0    / 1px  15px no-repeat,
-    linear-gradient(var(--acc), var(--acc)) 100% 0    / 15px 1px  no-repeat,
-    linear-gradient(var(--acc), var(--acc)) 0    100% / 1px  15px no-repeat,
-    linear-gradient(var(--acc), var(--acc)) 0    100% / 15px 1px  no-repeat,
-    linear-gradient(var(--acc), var(--acc)) 100% 100% / 1px  15px no-repeat,
-    linear-gradient(var(--acc), var(--acc)) 100% 100% / 15px 1px  no-repeat;
-  opacity: 0.85;
+    /* top-left — busy top, weak left gutter */
+    linear-gradient(var(--tk-tl, var(--tk)), var(--tk-tl, var(--tk)))
+      0 0 / calc(var(--arm-busy) * var(--cell-w)) var(--tw-tl, var(--tw)) no-repeat,
+    linear-gradient(var(--tk-tl, var(--tk)), var(--tk-tl, var(--tk)))
+      0 0 / var(--tw-tl, var(--tw)) calc(2 * var(--cell-h)) no-repeat,
+
+    /* top-right — both edges busy, and the vertical trails down the wake */
+    linear-gradient(var(--tk-tr, var(--tk)), var(--tk-tr, var(--tk)))
+      100% 0 / calc(var(--arm-busy) * var(--cell-w)) var(--tw-tr, var(--tw)) no-repeat,
+    linear-gradient(var(--tk-tr, var(--tk)), var(--tk-tr, var(--tk)))
+      100% 0 / var(--tw-tr, var(--tw)) calc(6 * var(--cell-h)) no-repeat,
+
+    /* bottom-right — quiet bottom, but still on the wake edge */
+    linear-gradient(var(--tk-br, var(--tk)), var(--tk-br, var(--tk)))
+      100% 100% / calc(var(--arm-quiet) * var(--cell-w)) var(--tw-br, var(--tw)) no-repeat,
+    linear-gradient(var(--tk-br, var(--tk)), var(--tk-br, var(--tk)))
+      100% 100% / var(--tw-br, var(--tw)) calc(3 * var(--cell-h)) no-repeat,
+
+    /* bottom-left — dead water */
+    linear-gradient(var(--tk-bl, var(--tk)), var(--tk-bl, var(--tk)))
+      0 100% / calc(var(--arm-quiet) * var(--cell-w)) var(--tw-bl, var(--tw)) no-repeat,
+    linear-gradient(var(--tk-bl, var(--tk)), var(--tk-bl, var(--tk)))
+      0 100% / var(--tw-bl, var(--tw)) calc(1 * var(--cell-h)) no-repeat;
 }
 
 .panes { flex: 1 1 auto; min-height: 0; position: relative; }
@@ -88,6 +131,9 @@
    freeRegion() puts the intro stamp, so the name still condenses out of
    the smoke on a phone. */
 @media (max-width: 760px) {
+  /* allocGrid() drops to 8x9 cells below this width. */
+  :root { --cell-w: 8px; --cell-h: 9px; }
+
   #panel {
     left: 10px; right: 10px; width: auto;
     top: calc(10px + env(safe-area-inset-top, 0px));

@@ -16,6 +16,10 @@ function renderHud() {
     `<b>${P.palette}</b> · solid <b>${P.solids ? 'ON' : 'OFF'}</b>`;
 }
 
+/* The solver subpanel reports the same framerate, so it reads it from here
+   rather than timing a second one that would disagree by a frame or two. */
+function hudFps() { return _fps; }
+
 function hudFrame(now) {
   _fpsAcc++;
   if (now - _fpsT >= 500) {

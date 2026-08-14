@@ -9,7 +9,7 @@
    wake stays keyed to the old bounding box. */
 
 const SKINS = {
-  night: 'translucent dark panel, amber viewfinder ticks — the original',
+  night: 'translucent dark panel, amber ticks that light where the flow works',
   steel: 'box-character frame on the sim grid, cold until the flow lights it',
   rime:  'no frame — smoke accreting on the panel, drawn in the sim\'s own ramp',
   cut:   'opaque bone slab, black type, hard offset shadow — wins on value',
@@ -38,6 +38,10 @@ function applySkin(name) {
      does both, and calls rebuildSolids() itself once the rect is final. */
   if (typeof charFrameSync === 'function') charFrameSync();
   else if (typeof rebuildSolids === 'function') rebuildSolids();
+
+  /* night's ticks measure themselves in cells and read the field per corner,
+     so they need the final rect too — and need standing down on the way out. */
+  if (typeof tickSync === 'function') tickSync();
   return true;
 }
 

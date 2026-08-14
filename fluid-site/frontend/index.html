@@ -72,7 +72,7 @@
         smoke can't cross it and the flow has to go around.
       </p>
       <ul class="try">
-        <li><button class="run" data-run="skin rime">skin rime</button><span>let the smoke pile up on this panel's edge</span></li>
+        <li><button class="run" data-run="open solver">open solver</button><span>a second body in the flow — drag it around</span></li>
         <li><button class="run" data-run="solid off">solid off</button><span>take the panel out of the flow</span></li>
         <li><button class="run" data-run="echo stable fluids">echo &lt;text&gt;</button><span>stamp words into the smoke</span></li>
         <li><button class="run" data-run="wind">wind</button><span>a gust — watch it break around this panel</span></li>
@@ -151,7 +151,7 @@
       <h2 class="sec">// BUILT</h2>
 
       <article class="entry">
-        <div class="entry-h"><span class="who">ASCII Fluid Dynamics Simulator</span><span class="when">js · canvas</span></div>
+        <div class="entry-h"><span class="who" data-detail="ascii-fluid" role="button" tabindex="0">ASCII Fluid Dynamics Simulator</span><span class="when">js · canvas</span></div>
         <p class="body">
           ASCII fluid sim (this website) based on Jos Stam’s 1999 stable-fluids method: Gauss-Seidel
           pressure solve, semi-Lagrangian advection, vorticity confinement to put
@@ -166,7 +166,7 @@
       </article>
 
       <article class="entry">
-        <div class="entry-h"><span class="who">Facial-Landmark Feedback Pipeline</span><span class="when">python · opencv</span></div>
+        <div class="entry-h"><span class="who" data-detail="landmarks" role="button" tabindex="0">Facial-Landmark Feedback Pipeline</span><span class="when">python · opencv</span></div>
         <p class="body">
           Landmark feedback for drawings as well as photographs. Where the neural
           detectors gave up — rotated heads, pencil sketches — it falls back to CPD
@@ -243,6 +243,8 @@
 <script src="js/fluid/input.js"></script>
 <script src="js/ui/panes.js"></script>
 <script src="js/ui/charFrame.js"></script>
+<script src="js/ui/panels.js"></script>
+<script src="js/ui/ticks.js"></script>
 <script src="js/ui/console.js"></script>
 <script src="js/ui/hud.js"></script>
 <script src="js/fluid/loop.js"></script>

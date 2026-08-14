@@ -50,6 +50,11 @@ const HELP = [
   'echo <text>     rasterise text straight into the density field',
   'flush           empty the tank     reset        back to defaults',
   '',
+  'panels —',
+  'open <solver|detail>   opens a window; it becomes a body in the flow',
+  'close <name|all>       closes it, and its wake collapses',
+  'panels                 what is open        (drag a window by its bar)',
+  '',
   'the panel —',
   'skin <night|steel|rime|cut|block>   how the panel sits on the field',
   '                steel and rime draw into the sim grid — run `wind` after',
@@ -147,6 +152,45 @@ function runCommand(raw) {
       setNum(cmd, arg, isSat ? 0 : 0.35, 1, isSat ? 'saturation' : 'lightness ceiling');
       buildPalette(P.palette);
       if (P.palette !== 'flow') print('note: only the flow palette reads this', 'out');
+      return;
+    }
+
+    /* ── panels ──────────────────────────────────────────────────────
+       Every open panel is a body in the solve, so these are physics
+       commands as much as they are UI ones. */
+    case 'open': {
+      const parts2 = arg.split(/\s+/);
+      const id = (parts2[0] || '').toLowerCase();
+      if (!id || (id === 'detail' && !parts2[1])) {
+        print('open <' + Object.keys(PANEL_DEFS).join('|') + '>');
+        print('  detail takes one of: ' + Object.keys(DETAILS).join(' · '));
+        return;
+      }
+      if (!openPanel(id, parts2[1])) {
+        print('open: no panel `' + id + '` — try ' + Object.keys(PANEL_DEFS).join(' · '), 'err');
+        return;
+      }
+      print('opened ' + id + ' — it is a solid body too, drag it into the wake', 'ok');
+      return;
+    }
+    case 'close': {
+      const a = arg.toLowerCase();
+      if (a === 'all' || !a) {
+        const n = listOpenPanels().length;
+        closeAllPanels();
+        print(n ? 'closed ' + n + ' panel(s)' : 'nothing open', 'ok');
+        return;
+      }
+      const hit = listOpenPanels().find(k => k === a || k.split(':')[0] === a);
+      if (!hit) { print('close: `' + a + '` is not open', 'err'); return; }
+      closePanel(hit);
+      print('closed ' + hit + ' — watch its wake collapse', 'ok');
+      return;
+    }
+    case 'panels': {
+      const open = listOpenPanels();
+      print('available: ' + Object.keys(PANEL_DEFS).join(' · '));
+      print(open.length ? 'open: ' + open.join(' · ') : 'open: none');
       return;
     }
 

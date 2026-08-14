@@ -26,6 +26,11 @@
   --panel-lift: none;                     /* box-shadow; skins use it for depth */
   --icon-filter: none;                    /* icons are drawn #fff on canvas */
 
+  /* The sim's cell pitch, so CSS can measure in cells. Nominal here — the real
+     pitch is innerWidth/COLS and js/ui/ticks.js overwrites both with it. */
+  --cell-w:   11px;
+  --cell-h:   12px;
+
   /* Share Tech Mono has no box-drawing glyphs; the fallbacks do the ASCII. */
   --mono: 'Share Tech Mono', ui-monospace, 'Cascadia Mono', Consolas, 'DejaVu Sans Mono', monospace;
   --glyph: ui-monospace, 'Cascadia Mono', Consolas, 'DejaVu Sans Mono', Menlo, monospace;

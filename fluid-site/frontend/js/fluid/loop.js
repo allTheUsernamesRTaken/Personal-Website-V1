@@ -18,6 +18,8 @@ function loop(now) {
   packetLifeRender();
   _lifeLast = now;
   charFrameFrame(now);      // no-op unless a character-frame skin is on
+  tickFrame(now);           // no-op unless night's corner ticks are on
+  panelsFrame(now);         // no-op unless a live subpanel is open
   hudFrame(now);
   requestAnimationFrame(loop);
 }
@@ -30,6 +32,7 @@ function boot(now) {
   _origin = now;
   rebuildSolids();       // needs layout, so after first paint
   charFrameSync();       // ditto — it measures the panel before snapping it
+  tickSync();            // after charFrameSync: that can move the panel
   introSequence();
   requestAnimationFrame(loop);
 }

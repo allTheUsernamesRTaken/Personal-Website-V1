@@ -4,4 +4,5 @@
 @import 'layout.css';
 @import 'components.css';
 @import 'console.css';
+@import 'panels.css';
 @import 'skins.css';   /* last — skins override the sheets above */

@@ -8,23 +8,47 @@
 
 const panelEl = document.getElementById('panel');
 
-function rebuildSolids() {
-  if (!solid) return;
-  solid.fill(0);
-  if (!P.solids || !panelEl) return;
+/* Every panel on the page is an obstacle, not just the main one. Subpanels
+   register on open and unregister on close, so opening one puts a new bluff
+   body in the stream and closing one lets its wake collapse. panels.js
+   restamps on every drag frame, which is the whole point of the thing:
+   dragging a panel is dragging an obstacle through the flow. */
+const solidEls = [panelEl];
 
-  const r  = panelEl.getBoundingClientRect();
-  const cw = window.innerWidth  / COLS;
-  const ch = window.innerHeight / ROWS;
+function registerSolid(el) {
+  if (el && solidEls.indexOf(el) < 0) solidEls.push(el);
+}
 
+function unregisterSolid(el) {
+  const i = solidEls.indexOf(el);
+  if (i >= 0) solidEls.splice(i, 1);
+}
+
+function stampRect(r, cw, ch) {
   // Inset by a cell so the boundary layer has somewhere to live.
   const i0 = Math.max(1, Math.floor(r.left / cw) + 1);
   const i1 = Math.min(COLS - 2, Math.ceil(r.right / cw) - 1);
   const j0 = Math.max(1, Math.floor(r.top / ch) + 1);
   const j1 = Math.min(ROWS - 2, Math.ceil(r.bottom / ch) - 1);
+  if (i1 < i0 || j1 < j0) return;              // smaller than its own boundary layer
 
   for (let j = j0; j <= j1; j++) {
     for (let i = i0; i <= i1; i++) solid[j * COLS + i] = 1;
+  }
+}
+
+function rebuildSolids() {
+  if (!solid) return;
+  solid.fill(0);
+  if (!P.solids) return;
+
+  const cw = window.innerWidth  / COLS;
+  const ch = window.innerHeight / ROWS;
+
+  for (let k = 0; k < solidEls.length; k++) {
+    const el = solidEls[k];
+    if (!el || !el.isConnected) continue;
+    stampRect(el.getBoundingClientRect(), cw, ch);
   }
 }
 

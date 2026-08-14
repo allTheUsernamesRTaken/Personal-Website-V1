@@ -1,0 +1,129 @@
+/* panels.css — subpanels.
+
+   Everything here reads the skin tokens, so a subpanel is whatever the panel
+   currently is. It deliberately does not get a character frame: charFrame.js
+   drives #panel only, and giving every window one would put the whole page
+   back on the sim's grid, which is the thing that made the panel stop reading
+   as something in front of the flow. */
+
+.subpanel {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line-hi);
+  z-index: 20;
+  min-width: 260px;
+  font-family: var(--mono);
+  color: var(--txt);
+  user-select: text;
+}
+
+/* Grab handle. Also the only part of the window that is a control, so it's
+   the only part that carries the accent. */
+.sp-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 6px 4px 10px;
+  border-bottom: 1px solid var(--line);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;          /* or the browser pans the page instead of dragging */
+}
+.subpanel.is-drag .sp-bar { cursor: grabbing; }
+
+.sp-title {
+  font-family: var(--disp);
+  font-size: 17px;
+  letter-spacing: 0.12em;
+  color: var(--acc);
+}
+
+.sp-x {
+  appearance: none;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 1;
+  padding: 2px 5px;
+}
+.sp-x:hover { color: var(--acc); }
+
+.sp-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 12px 12px;
+  font-size: 12px;
+  line-height: 1.62;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.sp-body::-webkit-scrollbar { width: 3px; }
+.sp-body::-webkit-scrollbar-thumb { background: var(--line); }
+
+.sp-head {
+  font-family: var(--disp);
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  color: var(--hi);
+  margin-bottom: 1px;
+}
+.sp-sub {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--dimmer);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sp-kv {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 5px 12px;
+}
+.sp-kv dt { color: var(--dim); letter-spacing: 0.06em; }
+.sp-kv dd { color: var(--txt); }
+
+.sp-solver .sp-kv dd { font-variant-numeric: tabular-nums; }
+
+.sp-note {
+  margin-top: 12px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--dimmer);
+}
+
+/* Anything that opens a detail window. */
+[data-detail] {
+  cursor: pointer;
+  border-bottom: 1px dotted var(--line-hi);
+}
+[data-detail]:hover { color: var(--acc); }
+
+/* ── phones ──────────────────────────────────────────────────────────
+   No second place to put a window and nowhere to drag it to, so subpanels
+   become a sheet over the main panel and the bar stops being a handle. */
+@media (max-width: 760px) {
+  .subpanel {
+    left: 10px !important;
+    right: 10px;
+    top: auto !important;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    width: auto !important;
+    height: min(58dvh, 460px) !important;
+    z-index: 30;
+  }
+  .sp-bar { cursor: default; padding: 7px 8px 7px 12px; }
+  .sp-x { font-size: 20px; padding: 2px 8px; }
+  .sp-body { font-size: 13px; }
+}
