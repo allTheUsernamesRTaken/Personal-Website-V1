@@ -201,6 +201,241 @@
 }
 
 
+/* ── glass ───────────────────────────────────────────────────────────
+   No accent. Every other skin here picks a hue and then has to defend it
+   against a background that is already every hue at once; this one declines
+   the choice. The panel is achromatic — bone-white type on near-black — and
+   the only colour anywhere on it is light the fluid is currently putting
+   there, sampled per edge by js/ui/glass.js.
+
+   Which means the tokens below are the whole palette, and there are two of
+   them: white and black. --acc points at --hi. A button, a section head and
+   a link are separated by weight and by position, the way they are in print,
+   not by being tinted a different colour from the body text.
+
+   The lit values (--gl-*, --gs-*, --gl-lift) all rest at zero or near it, so
+   an empty tank gives a plain white-on-black document. That's deliberate:
+   the panel has to be legible as a document first and a surface second, and
+   anything that depends on the sim being busy would fail the moment someone
+   loads the page and doesn't touch it. */
+[data-skin="glass"] #panel {
+  --panel:     rgba(4, 6, 12, 0.88);
+  --txt:       rgba(236, 240, 248, 0.86);
+  --hi:        #fff;
+  --dim:       rgba(236, 240, 248, 0.46);
+  --dimmer:    rgba(236, 240, 248, 0.26);
+
+  /* Rules take the lift scalar, so every hairline in the panel comes up
+     very slightly when the field is working. Achromatic — it reads as the
+     sheet catching more light, not as another accent appearing. */
+  --line:      rgba(236, 240, 248, var(--gl-lift, 0.15));
+  --line-hi:   rgba(236, 240, 248, calc(var(--gl-lift, 0.15) * 2));
+
+  --acc:       var(--hi);
+  --acc-soft:  var(--dim);
+  --acc-wash:  rgba(255, 255, 255, 0.06);
+  --err:       #ff8a70;              /* the one hue kept, because it means something */
+  --wry:       var(--dimmer);
+
+  --frame:     transparent;
+  --frame-w:   1px;
+  --panel-lift: none;
+
+  /* Resting values, in case glass.js hasn't run yet or is standing down
+     under prefers-reduced-motion. These match GL_REST in glass.js — the rim
+     is the only boundary the panel has, so it has to hold an edge cold.
+
+     Gradients, not colours: glass.js replaces these with real multi-stop
+     gradients, and ::before uses them in a background shorthand with position
+     and size, which needs an image on both paths. */
+  --gl-t: linear-gradient(rgba(214, 226, 242, 0.30), rgba(214, 226, 242, 0.30));
+  --gl-r: linear-gradient(rgba(214, 226, 242, 0.30), rgba(214, 226, 242, 0.30));
+  --gl-b: linear-gradient(rgba(214, 226, 242, 0.30), rgba(214, 226, 242, 0.30));
+  --gl-l: linear-gradient(rgba(214, 226, 242, 0.30), rgba(214, 226, 242, 0.30));
+  --gs-t: 0; --gs-r: 0; --gs-b: 0; --gs-l: 0;
+  --gl-tint: rgba(0, 0, 0, 0);
+  --gl-lift: 0.15;
+  --gl-lit: #fff;              /* text hue; white until the field says otherwise */
+
+  /* The transmitted wash. Sits over the panel ground and under the content,
+     so it tints the surface without touching the type. */
+  background:
+    linear-gradient(var(--gl-tint), var(--gl-tint)),
+    var(--panel);
+}
+
+/* ── the rim ──
+   Four 1px edges, each its own colour, each reading its own side of the
+   panel. This is the whole ornament budget of the skin — there are no ticks,
+   no corner marks, no frame. An edge that lights because the flow is working
+   that edge is doing the job four static amber ticks were pretending to do.
+
+   ::before carries the rim, ::after the specular smear, because they need
+   different blend behaviour and a single element can't do both. */
+/* A hairline, and nothing else. No blur, no spill, no glow.
+
+   The first pass at this had a drop-shadow bloom on each side, and it was
+   wrong on its own terms: a light source blooms, a lit surface doesn't. The
+   fluid is the emitter here and the panel is the thing being lit, so the
+   panel gets a crisp edge that changes colour — not a halo. Bloom is also
+   the single most generic screen-glow idiom there is, which is reason enough
+   on a page whose whole argument is that it isn't generic.
+
+   1px. The rim reads because it is continuous and because its colour moves,
+   not because it has mass. */
+[data-skin="glass"] #panel::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  z-index: 3;
+  /* Each --gl-* is a whole linear-gradient built in glass.js, not a colour —
+     the rim varies *along* each edge, so a wake shedding off one corner
+     lights the few cells nearest it rather than the entire side. */
+  background:
+    var(--gl-t) 0    0    / 100% 1px no-repeat,
+    var(--gl-r) 100% 0    / 1px  100% no-repeat,
+    var(--gl-b) 0    100% / 100% 1px no-repeat,
+    var(--gl-l) 0    0    / 1px  100% no-repeat;
+}
+
+/* The grazing term, kept but demoted: a shallow wash a few px in from the lit
+   face, not a gradient reaching into the page. Screen blend so it adds light
+   rather than painting over the type. Invisible at rest. */
+[data-skin="glass"] #panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: screen;
+  /* Achromatic. The rim carries the hue; if the specular carried it too, the
+     two would disagree wherever a stop differs from its side's mean, and the
+     wash would fight the edge it's supposed to be coming off. Each face is
+     scaled by its own --gs-, so only the face being driven into lights. */
+  background:
+    linear-gradient(to bottom, rgba(214,226,242,calc(0.16 * var(--gs-t))) 0, transparent 22px),
+    linear-gradient(to left,   rgba(214,226,242,calc(0.16 * var(--gs-r))) 0, transparent 22px),
+    linear-gradient(to top,    rgba(214,226,242,calc(0.16 * var(--gs-b))) 0, transparent 22px),
+    linear-gradient(to right,  rgba(214,226,242,calc(0.16 * var(--gs-l))) 0, transparent 22px);
+}
+
+/* Content sits above both layers. */
+[data-skin="glass"] #panel > * { position: relative; z-index: 5; }
+
+/* ── hierarchy without colour ──
+   Amber was carrying all the emphasis, so removing it means weight and mass
+   have to carry it instead. Three things are heavy and everything else is a
+   hairline; that ratio is the point. A page where every mark is the same
+   weight has no hierarchy, it just has texture. */
+
+/* 1. The active tab keeps night's brackets. A filled slab is the correct
+      answer for `cut`, which is a print object — but here it's a block of
+      opaque UI on a panel whose whole claim is that it's a surface, and it's
+      the one mark that couldn't be lit by anything.
+
+      Brackets are also the page's own idiom: `dg@fluid:~$`, `// IDENT`,
+      `[ident]` are the same vocabulary, and the console is right underneath.
+      So the selection is marked the way the rest of the page marks things —
+      with a character — and separated by brightness, not by a fill.
+
+      The inactive tabs drop further than they do under night so the gap does
+      more of the work, since there's no accent hue to carry it. */
+/* A filled cell. Brackets were tried and they're too quiet here — under
+   night they never carried the selection alone either, the amber did most of
+   the work, so removing the hue left two thin characters holding a job they
+   were never doing.
+
+   The inactive tabs drop well below the body text so the strip reads as one
+   dim row with a single bright cell in it, rather than five labels of
+   similar weight. That gap is doing as much as the fill is. */
+[data-skin="glass"] .tabs { gap: 2px; }
+
+[data-skin="glass"] .tab {
+  color: rgba(236, 240, 248, 0.38);
+  padding: 6px 13px;
+}
+[data-skin="glass"] .tab:hover { color: rgba(236, 240, 248, 0.76); }
+
+[data-skin="glass"] .tab.is-on {
+  background: var(--hi);
+  color: #05060c;
+}
+[data-skin="glass"] .tab.is-on::before,
+[data-skin="glass"] .tab.is-on::after { content: none; }
+
+/* 2. Section heads — a rule, not a colour. The `// ` prefix in the markup is
+      already saying "section"; the head doesn't need to also be tinted. */
+[data-skin="glass"] .sec {
+  color: var(--hi);
+  letter-spacing: 0.16em;
+  border-bottom: 1px solid rgba(236, 240, 248, 0.28);
+  padding-bottom: 5px;
+}
+
+/* 3. Entry titles keep the weight they had. Everything else drops to a rule. */
+[data-skin="glass"] .entry-h { border-bottom-color: rgba(236, 240, 248, 0.20); }
+
+/* Buttons: outlined, filling on hover. Without an accent the affordance has
+   to come from the box responding, so the hover step is larger than it is
+   under night — it's the whole signal now. */
+[data-skin="glass"] .run,
+[data-skin="glass"] .sp-vent {
+  color: var(--txt);
+  border-color: rgba(236, 240, 248, 0.28);
+}
+[data-skin="glass"] .run:hover,
+[data-skin="glass"] .sp-vent:hover {
+  background: var(--hi);
+  border-color: var(--hi);
+  color: #05060c;
+}
+
+/* Links underline instead of tinting. */
+[data-skin="glass"] .link:hover { color: var(--hi); }
+[data-skin="glass"] .entry-links a { color: var(--dim); }
+[data-skin="glass"] .entry-links a:hover {
+  color: var(--hi);
+  border-bottom-color: var(--hi);
+}
+
+/* ── where the colour comes back ──
+   The skin's rule is that the panel owns no hue, not that the panel is grey.
+   Colour is allowed as long as it's borrowed from the field rather than
+   chosen — so three marks read --gl-lit, the achromatic-to-chromatic value
+   glass.js derives from the mean of the four edges, and take the fluid's own
+   current hue.
+
+   Which three matters. These are the marks that are *about* the sim: the
+   prompt you type sim commands at, the caret in that input, and the `ok`
+   line the console prints when a command lands. Everything structural stays
+   white. So the coloured things on the panel are exactly the things wired to
+   the solver, and when the tank is empty they go neutral on their own. */
+[data-skin="glass"] .prompt { color: var(--gl-lit, var(--dim)); }
+[data-skin="glass"] #cmd { caret-color: var(--gl-lit, var(--hi)); }
+[data-skin="glass"] .prompt::after { color: var(--gl-lit, var(--dim)); }
+
+/* The one <b> inside the body copy is "solid boundary inside the solve" —
+   which is a claim about the sim, so it gets the same treatment as the other
+   sim-wired marks rather than a flat white. */
+[data-skin="glass"] .body b {
+  color: var(--gl-lit, var(--hi));
+  border-bottom-color: rgba(236, 240, 248, 0.35);
+}
+
+/* --acc-soft is --dim here, which would make an `ok` line identical to an
+   `out` line — the confirmation would stop confirming anything. The lit
+   colour carries it: an `ok` is the console reporting that the solver took
+   a command, so it's a sim-wired mark like the prompt and gets the same
+   borrowed hue. */
+[data-skin="glass"] .cmdlog .ok { color: var(--gl-lit, var(--hi)); }
+[data-skin="glass"] .sp-title { color: var(--hi); }
+
+/* Subpanels are the same sheet, minus the rim — they move, and a lit edge on
+   a window being dragged reads as a bug rather than as a reflection. */
+[data-skin="glass"] .subpanel { border-color: rgba(236, 240, 248, 0.24); }
+
+
 /* ── shared by both new skins ────────────────────────────────────────
    Scale contrast against the 11×12px cell lattice. Small on its own, but
    it's the difference between the panel reading as a surface and reading
@@ -224,4 +459,322 @@
 
   [data-skin="cut"] .body,
   [data-skin="block"] .body { font-size: 14px; }
+}
+
+
+/* ── bench ───────────────────────────────────────────────────────────
+   Five hues, and each one has exactly one job.
+
+   Every other skin here treats colour as a single quantity — pick an accent,
+   apply it wherever something should stand out. That is why removing the
+   accent flattens those skins completely: the hue was carrying emphasis,
+   state, affordance and decoration at once, so there was nothing underneath
+   it. This one splits those apart and gives each a hue that means only that.
+
+   The palette is lab instrument panels — Tek and HP, roughly 1965 to 1980 —
+   because that is what this page already is: a live readout of a running
+   solver, with a telemetry line in the corner. Those panels ran five or six
+   colours at once and were not decorative about any of them; a hue meant a
+   class of thing, and you could read the front of the instrument without
+   knowing what it did.
+
+   It matters that these are paint and phosphor rather than points on a
+   wheel. The intervals are uneven, olive and amber sit close enough to be
+   awkward, and nothing here is a saturated mid-tone. A palette generated by
+   rotating hue is evenly spaced and reads as generated whichever hues come
+   out; an inherited one has accidents in it, and the accidents are what make
+   it look chosen. */
+[data-skin="bench"] #panel {
+  /* Warm instrument grey, not black. The field behind is 95% #05060c, so a
+     panel that is also near-black separates only by alpha; a grey with actual
+     pigment in it separates by temperature as well. */
+  --panel:     rgba(28, 30, 27, 0.93);
+
+  --txt:       rgba(226, 224, 210, 0.86);
+  --hi:        #e8e3d5;              /* bone — silkscreened legend, not white */
+  --dim:       rgba(226, 224, 210, 0.46);
+  --dimmer:    rgba(226, 224, 210, 0.26);
+  --line:      rgba(226, 224, 210, 0.16);
+  --line-hi:   rgba(226, 224, 210, 0.38);
+
+  /* ── the five jobs ──
+     --acc      state      phosphor cyan   the selected thing, and only that
+     --bench-rd readout    signal amber    live values; the instrument layer
+     --bench-st structure  olive           section heads and rules
+     --err      fault      lacquer red     errors, and nothing else
+     --hi       legend     bone            emphasis
+
+     The rule that makes this work is negative: no hue appears outside its
+     row. Amber never marks a heading, olive never marks a control, cyan
+     never marks emphasis. The moment one of them does two jobs it stops
+     being information and goes back to being branding, which is the failure
+     mode the single-accent skins have. */
+  --acc:       #5fd7d2;
+  --acc-soft:  rgba(95, 215, 210, 0.74);
+  --acc-wash:  rgba(95, 215, 210, 0.10);
+  --acc2:      var(--acc);
+
+  --bench-rd:  #e0a33c;
+  --bench-st:  #9aa653;
+  --err:       #c8452e;
+  --wry:       rgba(226, 224, 210, 0.42);
+
+  --frame:     rgba(226, 224, 210, 0.20);
+  --frame-w:   1px;
+
+  /* Hard offset, no blur — same argument as cut. An instrument sitting on a
+     bench occludes what is behind it; it does not glow onto it. */
+  --panel-lift: 0 0 0 1px rgba(0, 0, 0, 0.5), 16px 16px 0 rgba(4, 5, 11, 0.45);
+
+  --icon-filter: none;
+}
+
+/* Anodised rail along the inflow edge, in the structure hue. Not the state
+   hue: this is a fixed part of the object, and cyan is reserved for things
+   that change. Two-tone because a real extrusion has a lit face and a
+   shadowed one, and because a flat bar is the most generic edge treatment
+   available. */
+[data-skin="bench"] #panel::before {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--frame-w)) calc(-1 * var(--frame-w)) auto;
+  height: 7px;
+  opacity: 1;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    linear-gradient(var(--bench-st), var(--bench-st)) 0 0   / 100% 4px no-repeat,
+    linear-gradient(rgba(0,0,0,0.42), rgba(0,0,0,0.42))  0 4px / 100% 3px no-repeat;
+}
+
+/* ── state: cyan, and only the selected thing ──
+   Brackets kept from night rather than a filled slab. The panel is an
+   instrument face, and a selected control on one of those lights up — it
+   does not get reprinted in reverse. */
+[data-skin="bench"] .tab.is-on { color: var(--acc); }
+
+/* Hover is a value change, never a hue. A tab that goes olive on hover and
+   cyan when active changes identity twice on the way to being clicked, and
+   the eye reads that as two different controls. Brightness moves, hue does
+   not. */
+[data-skin="bench"] .tab:hover { color: var(--hi); }
+
+[data-skin="bench"] .tabs {
+  border-top: 1px solid var(--line-hi);
+  border-bottom: 1px solid var(--line-hi);
+}
+
+/* ── structure: olive, and nothing interactive ──
+   Section heads are furniture. They tell you where you are and you never
+   click them, so they get the hue that means part of the chassis — and
+   pointedly not the one that means you can operate this. */
+[data-skin="bench"] .sec {
+  color: var(--bench-st);
+  letter-spacing: 0.2em;
+  border-bottom: 1px solid rgba(154, 166, 83, 0.30);
+  padding-bottom: 3px;
+}
+
+/* ── readout: amber, the instrument layer ──
+   The prompt and the caret are the live edge of the console — the machine
+   talking, rather than the document being read. Same hue the HUD and the
+   corner ticks use out on the field, which is the point: the instrument
+   layer is one thing whether it sits inside the panel or outside it. That
+   distinction is invisible in the other skins because the document uses the
+   same amber, so there is nothing for it to contrast against. */
+[data-skin="bench"] .prompt { color: var(--bench-rd); }
+[data-skin="bench"] .prompt::after { color: var(--bench-rd); }
+[data-skin="bench"] #cmd { caret-color: var(--bench-rd); }
+
+/* Command output is the machine reporting a value, so it reads as a value —
+   amber for the same reason the HUD numbers are. */
+[data-skin="bench"] .cmdlog .ok { color: var(--bench-rd); }
+
+/* Telemetry, out on the field. #hud keeps the root tokens under every other
+   skin, which is why its amber currently reads as a leftover rather than a
+   decision — the document is amber too, so nothing distinguishes them. Here
+   the document has no amber in it at all, and the readout becomes the only
+   warm thing on the page. */
+[data-skin="bench"] #hud b { color: var(--bench-rd); }
+
+/* ── affordance: no hue at all ──
+   Controls are marked by having an edge and a wash, the way a physical
+   button is marked by being a raised object rather than by being a colour.
+   Cyan on hover would collide with cyan-means-selected. */
+[data-skin="bench"] .run {
+  color: var(--hi);
+  border-color: var(--line-hi);
+}
+[data-skin="bench"] .run:hover {
+  border-color: var(--acc);
+  background: var(--acc-wash);
+  color: var(--acc);
+}
+
+[data-skin="bench"] .link:hover { color: var(--hi); }
+[data-skin="bench"] .entry-links a { color: var(--dim); }
+[data-skin="bench"] .entry-links a:hover {
+  color: var(--hi);
+  border-bottom-color: var(--line-hi);
+}
+
+/* ── subpanels ──
+   A subpanel is a second instrument on the same bench, so it follows the
+   same rules: title in the structure hue because it is a label, the vent
+   control in cyan because it is the one thing on the window that acts. */
+[data-skin="bench"] .sp-title { color: var(--bench-st); }
+[data-skin="bench"] .sp-vent  { color: var(--hi); }
+[data-skin="bench"] .sp-vent:hover {
+  border-color: var(--acc);
+  color: var(--acc);
+}
+[data-skin="bench"] .sp-x:hover { color: var(--hi); }
+[data-skin="bench"] [data-detail]:hover { color: var(--acc); }
+
+/* Values in a key/value readout are values, so they take the readout hue.
+   This is the one place amber enters a subpanel, and it is the same rule the
+   HUD follows. */
+[data-skin="bench"] .sp-kv dd { color: var(--bench-rd); }
+
+/* Scale contrast against the cell lattice, same as cut and block. */
+[data-skin="bench"] .body { font-size: 13.5px; line-height: 1.68; }
+[data-skin="bench"] .sec  { font-size: 21px; margin: 22px 0 11px; }
+[data-skin="bench"] .pane::-webkit-scrollbar { width: 5px; }
+
+@media (max-width: 760px) {
+  [data-skin="bench"] #panel::before {
+    height: 6px;
+    background-size: 100% 4px, 100% 2px;
+  }
+  [data-skin="bench"] .body { font-size: 14px; }
+}
+
+
+/* ── TEST: bench's job-per-hue colour on night and glass ─────────────
+   Branch experiment/varied-type-color. Colour only — no type sizes, and the
+   panel grounds stay as they were. bench uses a warm instrument grey; both
+   skins here keep their own black, so this isolates the palette from the
+   surface change.
+
+   The system is bench's: five hues, each with exactly one job, and no hue
+   used outside its row.
+
+     --acc      state      phosphor cyan   the selected thing, and only that
+     --bench-rd readout    signal amber    live values; the instrument layer
+     --bench-st structure  olive           section heads and rules
+     --err      fault      lacquer red     errors, and nothing else
+     --hi       legend     bone            emphasis
+
+   Hover stays achromatic in both. Cyan means selected, so a control that
+   also went cyan on hover would change identity twice before being clicked. */
+
+
+/* ── night ──
+   The straightforward case: night already spends amber on everything, so
+   this is a redistribution rather than an addition. Amber stops marking
+   headings and controls and keeps only the readout job it shares with #hud
+   and the corner ticks — which is what makes the telemetry in the corner
+   read as an instrument rather than as a leftover. */
+[data-skin="night"] #panel {
+  --bench-rd:  #e0a33c;
+  --bench-st:  #9aa653;
+
+  --acc:       #5fd7d2;
+  --acc-soft:  rgba(95, 215, 210, 0.74);
+  --acc-wash:  rgba(95, 215, 210, 0.10);
+  --err:       #c8452e;
+  --hi:        #e8e3d5;              /* bone, not #fff — legend ink */
+  --wry:       rgba(226, 224, 210, 0.42);
+}
+
+/* structure — olive, never interactive */
+[data-skin="night"] .sec {
+  color: var(--bench-st);
+  border-bottom: 1px solid rgba(154, 166, 83, 0.30);
+  padding-bottom: 3px;
+}
+[data-skin="night"] .sp-title { color: var(--bench-st); }
+
+/* readout — amber, the instrument layer, inside the panel and out */
+[data-skin="night"] .prompt,
+[data-skin="night"] .prompt::after { color: var(--bench-rd); }
+[data-skin="night"] #cmd { caret-color: var(--bench-rd); }
+[data-skin="night"] .cmdlog .ok { color: var(--bench-rd); }
+[data-skin="night"] .sp-kv dd { color: var(--bench-rd); }
+[data-skin="night"] #hud b { color: var(--bench-rd); }
+
+/* affordance — no hue; edge and wash carry it */
+[data-skin="night"] .run { color: var(--hi); }
+[data-skin="night"] .run:hover {
+  border-color: var(--acc);
+  background: var(--acc-wash);
+  color: var(--acc);
+}
+[data-skin="night"] .sp-vent { color: var(--hi); }
+[data-skin="night"] .sp-vent:hover { border-color: var(--acc); color: var(--acc); }
+[data-skin="night"] .tab:hover { color: var(--hi); }
+[data-skin="night"] .sp-x:hover { color: var(--hi); }
+[data-skin="night"] .link:hover { color: var(--hi); }
+[data-skin="night"] .entry-links a { color: var(--dim); }
+[data-skin="night"] .entry-links a:hover {
+  color: var(--hi);
+  border-bottom-color: var(--line-hi);
+}
+
+/* night's corner ticks are hardcoded amber in js/ui/ticks.js (tickColour),
+   so they already sit in the readout row by accident. Left alone on purpose:
+   under this palette that is now correct rather than incidental. */
+
+
+/* ── glass ──
+   Worth being explicit that this contradicts the skin. glass's argument is
+   that the panel owns no hue at all — --acc points at --hi, and the three
+   sim-wired marks borrow --gl-lit, the hue glass.js samples off the fluid.
+   Fixed hues replace borrowed ones, so what comes back is a different skin
+   wearing glass's rim rather than a recoloured glass.
+
+   The rim and the specular wash are untouched, so the edges still read the
+   field. Only the type is fixed. */
+[data-skin="glass"] #panel {
+  --bench-rd:  #e0a33c;
+  --bench-st:  #9aa653;
+
+  --acc:       #5fd7d2;
+  --acc-soft:  rgba(95, 215, 210, 0.74);
+  --acc-wash:  rgba(95, 215, 210, 0.10);
+  --err:       #c8452e;
+}
+
+/* structure — overrides glass's white-with-a-rule head */
+[data-skin="glass"] .sec {
+  color: var(--bench-st);
+  border-bottom-color: rgba(154, 166, 83, 0.34);
+}
+[data-skin="glass"] .sp-title { color: var(--bench-st); }
+
+/* readout — these three were reading --gl-lit off the fluid; now fixed */
+[data-skin="glass"] .prompt,
+[data-skin="glass"] .prompt::after { color: var(--bench-rd); }
+[data-skin="glass"] #cmd { caret-color: var(--bench-rd); }
+[data-skin="glass"] .cmdlog .ok { color: var(--bench-rd); }
+[data-skin="glass"] .sp-kv dd { color: var(--bench-rd); }
+
+/* The one body <b> also borrowed the field hue. Bone keeps it as emphasis,
+   which is the legend row. */
+[data-skin="glass"] .body b { color: var(--hi); }
+
+/* state — glass fills the active tab with --hi; cyan is the state hue here,
+   and the fill stays because the brackets were tried and were too quiet. */
+[data-skin="glass"] .tab.is-on {
+  background: var(--acc);
+  color: #05060c;
+}
+
+/* affordance — glass fills buttons white on hover; cyan instead, matching
+   the state hue it already shares with the active tab. */
+[data-skin="glass"] .run:hover,
+[data-skin="glass"] .sp-vent:hover {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: #05060c;
 }
