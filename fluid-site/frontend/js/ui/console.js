@@ -62,7 +62,7 @@ const HELP = [
   '                food drifts with the field, it does not sit where it fell',
   '',
   'the panel —',
-  'skin <night|steel|rime|cut|block>   how the panel sits on the field',
+  'skin <night|steel|rime|cut|block|glass|bench|tube>   how the panel sits on the field',
   '                steel and rime draw into the sim grid — run `wind` after',
   '',
   'clear           clear this log'
@@ -259,6 +259,7 @@ function runCommand(raw) {
 
     case 'reset':
       Object.assign(P, DEFAULTS);
+      applySkin(DEFAULT_SKIN);
       cancelGust();
       buildPalette(P.palette);
       rebuildSolids();

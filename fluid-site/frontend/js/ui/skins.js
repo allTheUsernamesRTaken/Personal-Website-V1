@@ -13,17 +13,21 @@ const SKINS = {
   steel: 'box-character frame on the sim grid, cold until the flow lights it',
   rime:  'no frame — smoke accreting on the panel, drawn in the sim\'s own ramp',
   cut:   'opaque bone slab, black type, hard offset shadow — wins on value',
-  block: 'dark, chromatic, full-length edge bars — wins on scale'
+  block: 'dark, chromatic, full-length edge bars — wins on scale',
+  glass: 'no accent at all — colourless sheet, lit only by the fluid behind it',
+  bench: 'lab instrument face — five hues, one job each, none of them shared',
+  tube:  'glass\'s lit rim, but the type declares its own palette instead'
 };
 
 const SKIN_IDS = Object.keys(SKINS);
 const SKIN_KEY = 'dg.skin';
+const DEFAULT_SKIN = 'night';
 
 /* Old names that shipped before, so a saved preference doesn't fall back to
    night and look like the setting was lost. */
 const SKIN_ALIASES = { deck: 'steel' };
 
-let currentSkin = 'night';
+let currentSkin = DEFAULT_SKIN;
 
 function applySkin(name) {
   name = SKIN_ALIASES[name] || name;
@@ -42,6 +46,10 @@ function applySkin(name) {
   /* night's ticks measure themselves in cells and read the field per corner,
      so they need the final rect too — and need standing down on the way out. */
   if (typeof tickSync === 'function') tickSync();
+
+  /* glass reads the field per edge and writes its lit values as inline
+     custom properties, so it has the same requirement in both directions. */
+  if (typeof glassSync === 'function') glassSync();
   return true;
 }
 

@@ -219,7 +219,10 @@
   <div class="console">
     <div id="cmdlog" class="cmdlog" aria-live="polite"></div>
     <div class="prompt-row">
-      <label class="prompt" for="cmd">dg@fluid:~$</label>
+      <!-- Segmented so a skin can colour the parts separately, the way a real
+           PS1 does. Unstyled it still reads as one string: the spans carry no
+           spacing and inherit .prompt's colour unless a skin says otherwise. -->
+      <label class="prompt" for="cmd"><span class="ps-user">dg</span><span class="ps-at">@</span><span class="ps-host">fluid</span><span class="ps-sep">:</span><span class="ps-path">~</span><span class="ps-sig">$</span></label>
       <input id="cmd" type="text" autocomplete="off" autocapitalize="off"
              autocorrect="off" spellcheck="false" aria-label="Command input"
              placeholder="help">
@@ -246,6 +249,7 @@
 <script src="js/ui/charFrame.js"></script>
 <script src="js/ui/panels.js"></script>
 <script src="js/ui/ticks.js"></script>
+<script src="js/ui/glass.js"></script>
 <script src="js/ui/console.js"></script>
 <script src="js/ui/hud.js"></script>
 <script src="js/fluid/loop.js"></script>
