@@ -13,7 +13,9 @@ const _tCtx    = _tCanvas.getContext('2d', { willReadFrequently: true });
 /* Biggest chunk of screen the panel isn't occupying. Stamping into solid
    cells is stamping into nothing, so aim at the wake instead. */
 function freeRegion() {
-  if (!panelEl || !P.solids) return { cx: 0.5, cy: 0.46, w: 0.52, h: 1 };
+  /* Avoids the panel even when it isn't solid: smoke under it still reads
+     as hidden, and the intro belongs out on the open side. */
+  if (!panelEl) return { cx: 0.5, cy: 0.46, w: 0.52, h: 1 };
   const w = window.innerWidth, h = window.innerHeight;
   const r = panelEl.getBoundingClientRect();
   const boxes = [

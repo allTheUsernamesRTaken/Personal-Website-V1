@@ -24,13 +24,25 @@ function unregisterSolid(el) {
   if (i >= 0) solidEls.splice(i, 1);
 }
 
+/* Every cell the panel covers is solid — the boundary layer lives in the cell
+   immediately *outside*, which is free by construction.
+
+   The old version inset by a cell on each side (floor+1 / ceil-1), which was
+   fine for an arbitrary rect but wrong for a snapped one: charFrame.js rounds
+   the panel's edges onto the lattice, so r.top/ch is already a whole cell and
+   floor+1 pushed the first solid row one cell *into* the panel. That row was
+   still rendered, so a strip of sim glyphs ran under the panel's top edge.
+
+   Rounding instead of floor/ceil is what makes that exact: on a snapped edge
+   it recovers the boundary the snap chose, and on an unsnapped one it claims
+   the cell the panel covers more than half of, which is the same rule the
+   renderer is using to decide the glyph belongs to that cell anyway. */
 function stampRect(r, cw, ch, target = solid) {
-  // Inset by a cell so the boundary layer has somewhere to live.
-  const i0 = Math.max(1, Math.floor(r.left / cw) + 1);
-  const i1 = Math.min(COLS - 2, Math.ceil(r.right / cw) - 1);
-  const j0 = Math.max(1, Math.floor(r.top / ch) + 1);
-  const j1 = Math.min(ROWS - 2, Math.ceil(r.bottom / ch) - 1);
-  if (i1 < i0 || j1 < j0) return;              // smaller than its own boundary layer
+  const i0 = Math.max(1, Math.round(r.left / cw));
+  const i1 = Math.min(COLS - 2, Math.round(r.right / cw) - 1);
+  const j0 = Math.max(1, Math.round(r.top / ch));
+  const j1 = Math.min(ROWS - 2, Math.round(r.bottom / ch) - 1);
+  if (i1 < i0 || j1 < j0) return;              // narrower than a single cell
 
   for (let j = j0; j <= j1; j++) {
     for (let i = i0; i <= i1; i++) target[j * COLS + i] = 1;
@@ -187,10 +199,12 @@ function rebuildSolids() {
     }
     lastRect.set(el, { left: r.left, top: r.top });
 
-    if (P.solids) stampRect(r, cw, ch);
+    /* `solid` only toggles the main panel. Subpanels opened from the
+       console are always bodies — they're there to be dragged into the flow. */
+    if (P.solids || el !== panelEl) stampRect(r, cw, ch);
   }
 
-  if (!resized && P.solids && P.displace) displaceCovered(mvx, mvy, movingSolid);
+  if (!resized && P.displace) displaceCovered(mvx, mvy, movingSolid);
 }
 
 /* Grid is sized off the viewport, so a resize means a full realloc.
@@ -208,7 +222,24 @@ function onViewportChange() {
 window.addEventListener('resize', onViewportChange);
 window.addEventListener('orientationchange', onViewportChange);
 
-/* The panel changes height when you switch tabs, so track it directly. */
+/* The panel changes height when you switch tabs, so track it directly.
+
+   It has to re-snap, not just restamp: a tab with taller content leaves the
+   bottom edge mid-cell, and the mask can only claim whole cells, so the
+   leftover strip would render sim glyphs under the panel until the next
+   resize. charFrameSync() re-snaps and calls rebuildSolids() itself.
+
+   Guarded against re-entry because the snap sets an inline height, which
+   trips the observer that called it. */
+let _roBusy = false;
 if (panelEl && window.ResizeObserver) {
-  new ResizeObserver(() => rebuildSolids()).observe(panelEl);
+  new ResizeObserver(() => {
+    if (_roBusy) return;
+    _roBusy = true;
+    if (typeof charFrameSync === 'function') charFrameSync();
+    else rebuildSolids();
+    /* Cleared on a later task, not synchronously: the observer fires after
+       layout, so releasing here would just re-enter on the snap's own write. */
+    setTimeout(() => { _roBusy = false; }, 0);
+  }).observe(panelEl);
 }

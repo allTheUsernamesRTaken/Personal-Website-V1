@@ -32,8 +32,11 @@ function burstAt(ci, cj) {
   }
 }
 
+/* Moving over the panel stirs the fluid behind it when the panel isn't a
+   solid body. Clicks and touches over it still don't — those are for the
+   panel's own buttons and scrolling. */
 document.addEventListener('mousemove', e => {
-  if (overPanel(e)) { prevCi = -1; prevCj = -1; return; }
+  if (P.solids && overPanel(e)) { prevCi = -1; prevCj = -1; return; }
   const { ci, cj } = getCell(e.clientX, e.clientY);
   noteUserInput();
   applyMove(ci, cj);

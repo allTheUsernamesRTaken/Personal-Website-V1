@@ -9,7 +9,7 @@
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="Daniel Guo">
-  <meta property="og:description" content="CS + Machine Learning @ Waterloo. The background is a real-time fluid solver — the panel is a solid body inside it.">
+  <meta property="og:description" content="CS + Machine Learning @ Waterloo. The background is a real-time fluid solver — drag it, or make the panel a solid body inside it.">
   <meta property="og:url" content="https://danielguo.net/">
   <meta property="og:image" content="https://danielguo.net/og.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -54,50 +54,41 @@
       <p class="body">
         Computing + ML (Applied Math) @UWaterloo, '30. Right now at the
         <b>SFU Intelligent Robotics Lab</b>, on multi-point articulation
-        inference for robot RL.
-      </p>
-      <p class="body">
-        I grew up in Vancouver BC and now I live in Waterloo, its a pretty cool city (no much to see though),
-       big fan of coding
+        inference for robot RL. Vancouver, then Waterloo.
       </p>
 
-      <h2 class="sec">// THE BACKGROUND</h2>
-      <p class="body">
-        Stable fluids, Jos Stam 1999. ~16k cells, solved every other frame,
-        drawn one ASCII character per cell. 
-        Colour is the direction the fluid
-        is moving, try dragging your mouse around. 
-        This panel is also a 
-        <b>solid boundary inside the solve</b>, so
-        smoke can't cross it and the flow has to go around.
-      </p>
-      <ul class="try">
-        <li><button class="run" data-run="open solver">open solver</button><span>a second body in the flow — drag it around</span></li>
-        <li><button class="run" data-run="open life">open life</button><span>a habitat — things that want slow water, and a panel that makes some</span></li>
-        <li><button class="run" data-run="solid off">solid off</button><span>take the panel out of the flow</span></li>
-        <li><button class="run" data-run="echo stable fluids">echo &lt;text&gt;</button><span>stamp words into the smoke</span></li>
-        <li><button class="run" data-run="wind">wind</button><span>a gust — watch it break around this panel</span></li>
-        <li><button class="run" data-run="help">help</button><span>everything else</span></li>
-      </ul>
-
+      <!-- Ahead of the fluid copy on purpose: this is what someone came for,
+           and it used to sit under two paragraphs and a six-item list. -->
       <div class="links">
-        <a class="link" href="https://www.linkedin.com/in/dguo7/" target="_blank" rel="noopener">
-          <canvas id="liIcon" width="16" height="16" aria-hidden="true"></canvas><span>LinkedIn</span>
+        <a class="link" href="Daniel-Guo-Resume.pdf" target="_blank" rel="noopener">
+          <canvas id="resIcon" width="16" height="16" aria-hidden="true"></canvas><span>Resume</span>
         </a>
         <a class="link" href="https://github.com/allTheUsernamesRTaken" target="_blank" rel="noopener">
           <canvas id="ghIcon" width="16" height="16" aria-hidden="true"></canvas><span>GitHub</span>
         </a>
+        <a class="link" href="https://www.linkedin.com/in/dguo7/" target="_blank" rel="noopener">
+          <canvas id="liIcon" width="16" height="16" aria-hidden="true"></canvas><span>LinkedIn</span>
+        </a>
         <a class="link" href="mailto:danielguo2007@gmail.com">
           <canvas id="emIcon" width="16" height="16" aria-hidden="true"></canvas><span>Email</span>
         </a>
-        <a class="link" href="Daniel-Guo-Resume.pdf" target="_blank" rel="noopener">
-          <canvas id="resIcon" width="16" height="16" aria-hidden="true"></canvas><span>Resume</span>
-        </a>
       </div>
+
+      <h2 class="sec">// THIS WEBSITE</h2>
+      <p class="body">
+        Based off the paper Stable fluids, Jos Stam 1999. 
+        Drag the background. Type <b>solid on</b> and it 
+        becomes a solid the flow has to go around.
+      </p>
+      <ul class="try">
+        <li><button class="run" data-run="wind">wind</button><span>a gust across the tank</span></li>
+        <li><button class="run" data-run="open solver">open solver</button><span>a second body — drag it into the wake</span></li>
+        <li><button class="run" data-run="open life">open life</button><span>things that live in the slow water behind it</span></li>
+        <li><button class="run" data-run="help">help</button><span>the rest</span></li>
+      </ul>
 
       <p class="foot">
         Waterloo / Vancouver · <a class="wry" href="https://github.com/allTheUsernamesRTaken/Personal-Website-V1">site source ↗</a>
-        
       </p>
     </section>
 

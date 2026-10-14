@@ -7,23 +7,25 @@
    So these two skins draw their boundary out of the same stuff as everything
    else, in the same font, at the same pitch, on the same lattice.
 
-   Shared by both:
+   snapPanel() lives here but serves the whole page: it rounds the panel's
+   rect to whole cells, and every skin calls it. Two things need that. A
+   boundary glyph lands exactly where a sim glyph would have, which is what
+   stops the panel reading as an element floating over a canvas; and the
+   solid mask in solids.js can claim precisely the cells the panel covers,
+   so no strip of sim glyphs renders under an edge that stopped mid-cell.
+   Note the on-screen pitch is innerWidth/COLS, not CW — the sim's backing
+   store is COLS*CW stretched to 100vw — so this agrees with solids.js.
 
-   - snapPanel() rounds the panel's rect to whole cells, so a boundary glyph
-     lands exactly where a sim glyph would have. That's what stops the panel
-     reading as an element floating over a canvas. Note the on-screen pitch is
-     innerWidth/COLS, not CW — the sim's backing store is COLS*CW stretched to
-     100vw — so this agrees with solids.js.
-
-   - Sampling is smoothed in space and in time. Reading one fluid cell per
-     glyph makes neighbours disagree, which shows up as a shifting multi-hue
-     speckle along the edge rather than an edge that lights up as one thing.
+   What's specific to the two character skins is the frame itself. Sampling
+   for it is smoothed in space and in time: reading one fluid cell per glyph
+   makes neighbours disagree, which shows up as a shifting multi-hue speckle
+   along the edge rather than an edge that lights up as one thing.
 
    The two differ in what they draw:
 
-   steel  a fixed box-drawing frame, lit by the flow. Asymmetric because the
-          gust comes in over the top and sheds off the top-right (ambient.js),
-          so the two edges the flow engages are the two that carry weight.
+   steel  a fixed box-drawing frame, lit by the flow. A single rule weight
+          all the way round, with gusseted corners — plate that was cut and
+          welded square. It doesn't respond in its geometry, only in light.
 
    rime   no frame at all. The boundary is drawn from the sim's own density
           ramp — dense glyphs where flow presses on the panel, nothing where
@@ -64,56 +66,48 @@ function buildSteel(W, H) {
   const map = new Map();
   const put = (u, v, ch, w) => map.set(v * W + u, { u, v, ch, w });
 
-  const EDGE = 0.42, NODE = 0.78, CORNER = 1, LABEL = 0.34;
+  const EDGE = 0.42, CORNER = 1, LABEL = 0.34;
 
-  /* Single and double rules have to meet on proper transition glyphs or the
-     joins break: ╒ is down-single/right-double, ╜ is up-double/left-single. */
-  put(0,     0,     '╒', CORNER);
+  /* One rule weight the whole way round. The earlier frame mixed single and
+     double rules and studded the edges with ports and taps at irregular
+     intervals; irregular detail on a boundary reads as growth on it, not as
+     fabrication, which is the opposite of what this skin is for. Steel is
+     stock that was cut square, so the frame is uniform and the only breaks
+     in it are ones a machinist would have made. */
+  put(0,     0,     '╔', CORNER);
   put(W - 1, 0,     '╗', CORNER);
-  put(0,     H - 1, '└', CORNER);
-  put(W - 1, H - 1, '╜', CORNER);
+  put(0,     H - 1, '╚', CORNER);
+  put(W - 1, H - 1, '╝', CORNER);
 
   for (let u = 1; u < W - 1; u++) put(u, 0,     '═', EDGE);   // inflow edge
   for (let v = 1; v < H - 1; v++) put(W - 1, v, '║', EDGE);   // the wake runs down this one
-  for (let v = 1; v < H - 1; v++) put(0, v,     '│', EDGE);
-  for (let u = 1; u < W - 1; u++) put(u, H - 1, '─', EDGE);
+  for (let v = 1; v < H - 1; v++) put(0, v,     '║', EDGE);
+  for (let u = 1; u < W - 1; u++) put(u, H - 1, '═', EDGE);
 
   // Below this, detail is clutter rather than structure.
   if (W < 22 || H < 14) return Array.from(map.values());
 
-  /* Ports, with irregular spacing and irregular lead length. Regular spacing
-     reads as a pattern; irregular reads as an assembly that had reasons. */
-  [[3, 2], [9, 1], [12, 1]].forEach(([u, drop]) => {
-    if (u >= W - 11) return;
-    put(u, 0, '╤', NODE);
-    for (let v = 1; v <= drop; v++) put(u, v, '│', EDGE);
-  });
-
-  /* The shedding corner — the only elaborate one, because it's the only
-     corner where anything happens. Terminates into ╢ so nothing dangles. */
-  const s = Math.max(6, Math.min(10, W - 14));
-  for (let u = W - s; u <= W - 2; u++) put(u, 1, '─', LABEL);
-  put(W - 1, 1, '╢', CORNER);
-  put(W - 1, 2, '╢', NODE);
-  put(W - 1, 3, '╢', NODE);
-
-  /* Taps, counted in cells — nearby fractions round together and collapse. */
-  const taps = (u, ch, w, lo, spec) => spec.forEach(([f, n]) => {
-    const v0 = Math.round(f * H);
-    for (let k = 0; k < n; k++) {
-      const v = v0 + k;
-      if (v > lo && v < H - 2) put(u, v, ch, w);
-    }
-  });
-  taps(W - 1, '╢', EDGE, 4, [[0.17, 1], [0.26, 2], [0.44, 1], [0.62, 3], [0.81, 1]]);
-  taps(0,     '├', NODE, 1, [[0.10, 2], [0.29, 1]]);
+  /* Corner gussets: a short inboard return at each corner, the same length on
+     all four. It gives the corners the doubled thickness a welded or bolted
+     joint has, and it's the one place extra material belongs on a frame. */
+  const gus = Math.max(2, Math.min(4, ((Math.min(W, H) / 6) | 0)));
+  for (let k = 1; k <= gus; k++) {
+    put(k,         1,     '─', LABEL);
+    put(W - 1 - k, 1,     '─', LABEL);
+    put(k,         H - 2, '─', LABEL);
+    put(W - 1 - k, H - 2, '─', LABEL);
+    put(1,     k,         '│', LABEL);
+    put(1,     H - 1 - k, '│', LABEL);
+    put(W - 2, k,         '│', LABEL);
+    put(W - 2, H - 1 - k, '│', LABEL);
+  }
 
   /* Nameplate in the bottom rule. Written last so it clears the rule. */
   const label = ' STABLE·FLUIDS·1999 ';
   if (W > label.length + 8) {
     for (let k = 0; k < label.length; k++) {
       const c = label[k];
-      put(3 + k, H - 1, c === ' ' ? '─' : c, c === ' ' ? EDGE : LABEL);
+      put(3 + k, H - 1, c === ' ' ? '═' : c, c === ' ' ? EDGE : LABEL);
     }
   }
   return Array.from(map.values());
@@ -258,7 +252,61 @@ function drawFrame() {
   if (charSkin() === 'rime') drawRime(g); else drawSteel(g);
 }
 
-/* ── lattice ──────────────────────────────────────────────────────────── */
+/* Trailing empty space in a rendered cell, in px.
+
+   The sim's cell is CW wide but its font is CW+2 (constants.js), and a
+   monospace advance is only ~0.6 of the font size — so the ink of a glyph
+   occupies about 7.8px of an 11px cell, left-aligned, leaving a gap on the
+   right. The renderer's glyphs are drawn at i*CW with textAlign left, so
+   every column of ink starts at its cell's left edge and stops short of the
+   next one.
+
+   That gap is what the panel's left edge was landing against: the column of
+   cells outside the panel is solid ink at its left and empty at its right,
+   so a panel edge exactly on the lattice reads as a channel of background
+   between the type and the panel. Pulling the edge left by the gap closes
+   it, so the panel sits against the ink instead of against the lattice.
+
+   Measured rather than assumed: MONO is a stack and the advance ratio
+   differs per font, so a hardcoded nudge would be wrong wherever the stack
+   falls through to a different face. Cached — this forces no layout, but it
+   is a canvas allocation and the answer only changes with CW. */
+let _inkGap = null, _inkGapFor = -1;
+function cellInkGap(cw) {
+  if (_inkGapFor === CW) return _inkGap * (cw / CW);
+
+  let adv = 0;
+  try {
+    const c = document.createElement('canvas').getContext('2d');
+    c.font = (CW + 2) + 'px ' + MONO;
+    /* A dense glyph, so we measure the ramp's widest ink rather than a space.
+       measureText's width is the advance, which is what the renderer steps
+       by — the ink itself can be marginally narrower, and that residue is
+       exactly the hairline we want to keep. */
+    adv = c.measureText('█').width;
+  } catch (e) { /* no 2d context; fall through to no nudge */ }
+
+  /* Guard the pathological cases: no metrics, or a font whose advance is
+     wider than the cell (then there is no gap to close). */
+  _inkGap = (adv > 0 && adv < CW) ? CW - adv : 0;
+  _inkGapFor = CW;
+  return _inkGap * (cw / CW);
+}
+
+/* ── lattice ──────────────────────────────────────────────────────────────
+   Rounds the panel onto whole cells and returns its rect in cells.
+
+   This runs for every skin, not just the two that draw character frames. The
+   panel is the obstacle in the solver either way, and the renderer draws a
+   glyph for any cell the mask doesn't claim — so an edge sitting mid-cell
+   leaves a strip of sim glyphs running under the panel. steel and rime are
+   just the two skins that additionally need the snapped geometry to place
+   their own glyphs.
+
+   Rounds rather than floors so the panel keeps the size the CSS asked for to
+   within half a cell in each axis, instead of always shrinking. The floors on
+   the extents are there because the frame builders index into a grid and a
+   degenerate panel would fold them; nothing on the page gets near them. */
 function snapPanel() {
   const cw = window.innerWidth / COLS;
   const ch = window.innerHeight / ROWS;
@@ -271,15 +319,28 @@ function snapPanel() {
   const i1 = Math.max(i0 + 12, Math.round(r.right  / cw));
   const j1 = Math.max(j0 +  8, Math.round(r.bottom / ch));
 
+  /* Left edge only. The cell to the left of the panel has its ink at the
+     left and its gap at the right, so that edge is the one with a visible
+     channel behind it; growing left by the gap puts the panel against the
+     type. The right edge has the opposite geometry — the cell outside it
+     starts with ink — so it already hugs, and nudging it would overlap the
+     glyphs instead of meeting them. Top and bottom are unaffected: the
+     renderer's baseline is textBaseline top, so rows tile flush. */
+  const gap = cellInkGap(cw);
+
   const st = panelEl.style;
-  st.left = (i0 * cw) + 'px';
+  st.left = (i0 * cw - gap) + 'px';
   st.top  = (j0 * ch) + 'px';
   st.right = st.bottom = 'auto';
-  st.width  = ((i1 - i0) * cw) + 'px';
+  st.width  = ((i1 - i0) * cw + gap) + 'px';
   st.height = ((j1 - j0) * ch) + 'px';
   st.transform = 'none';
 
-  cfGeom = { i0, j0, W: i1 - i0, H: j1 - j0, cw, ch };
+  /* Cell geometry is reported unnudged. The gap is under a cell, so it
+     changes no cell's ownership: solids.js rounds and still claims exactly
+     i0..i1-1, and the frame builders keep drawing their glyphs on the
+     lattice rather than a half-pixel off it. */
+  return { i0, j0, W: i1 - i0, H: j1 - j0, cw, ch };
 }
 
 function clearSnap() {
@@ -379,8 +440,13 @@ function charFrameTeardown() {
 
 function charFrameSync() {
   if (!panelEl || !COLS) return;
+
+  /* Every skin snaps — see snapPanel(). The character skins go on to build a
+     frame on top of that geometry; the rest just want the edges on the
+     lattice so nothing renders under them. */
   if (!charSkin()) {
-    charFrameTeardown();
+    charFrameTeardown();                         // clears the snap...
+    snapPanel();                                 // ...so re-measure, then re-snap
     if (typeof rebuildSolids === 'function') rebuildSolids();
     return;
   }
@@ -389,7 +455,7 @@ function charFrameSync() {
   const ink = parseHex(getComputedStyle(panelEl).getPropertyValue('--char-ink'));
   if (ink) cfInk = ink;
 
-  snapPanel();
+  cfGeom = snapPanel();
   sizeCanvas();
   cfSlots = charSkin() === 'rime'
     ? buildRime(cfGeom.W, cfGeom.H)

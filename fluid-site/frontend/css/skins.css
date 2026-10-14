@@ -329,40 +329,35 @@
    hairline; that ratio is the point. A page where every mark is the same
    weight has no hierarchy, it just has texture. */
 
-/* 1. The active tab keeps night's brackets. A filled slab is the correct
-      answer for `cut`, which is a print object — but here it's a block of
-      opaque UI on a panel whose whole claim is that it's a surface, and it's
-      the one mark that couldn't be lit by anything.
+/* 1. The active tab keeps night's brackets, like the other skins. A filled
+      cell is the right answer for `cut`, which is a print object — here it's
+      a block of opaque UI on a panel whose whole claim is that it's a
+      surface, and the one mark that couldn't be lit by anything.
 
       Brackets are also the page's own idiom: `dg@fluid:~$`, `// IDENT`,
       `[ident]` are the same vocabulary, and the console is right underneath.
-      So the selection is marked the way the rest of the page marks things —
-      with a character — and separated by brightness, not by a fill.
 
-      The inactive tabs drop further than they do under night so the gap does
-      more of the work, since there's no accent hue to carry it. */
-/* A filled cell. Brackets were tried and they're too quiet here — under
-   night they never carried the selection alone either, the amber did most of
-   the work, so removing the hue left two thin characters holding a job they
-   were never doing.
-
-   The inactive tabs drop well below the body text so the strip reads as one
-   dim row with a single bright cell in it, rather than five labels of
-   similar weight. That gap is doing as much as the fill is. */
-[data-skin="glass"] .tabs { gap: 2px; }
+      With no hue to carry the selection, brightness does: the inactive tabs
+      drop well below the body text so the strip reads as one dim row with a
+      single bright, bracketed label in it. */
+[data-skin="glass"] .tabs { gap: 4px; }
 
 [data-skin="glass"] .tab {
   color: rgba(236, 240, 248, 0.38);
-  padding: 6px 13px;
+  padding: 5px 10px;
 }
 [data-skin="glass"] .tab:hover { color: rgba(236, 240, 248, 0.76); }
 
-[data-skin="glass"] .tab.is-on {
-  background: var(--hi);
-  color: #05060c;
-}
+[data-skin="glass"] .tab.is-on { color: var(--hi); background: none; }
+[data-skin="glass"] .tab.is-on::before { content: '['; margin-right: 3px; }
+[data-skin="glass"] .tab.is-on::after  { content: ']'; margin-left: 3px; }
+
+/* The label stays white; only the brackets borrow the field's hue, the same
+   --gl-lit the prompt reads. Two characters is enough colour to carry the
+   selection without the panel owning a hue, and they go neutral on their own
+   when the tank is idle. */
 [data-skin="glass"] .tab.is-on::before,
-[data-skin="glass"] .tab.is-on::after { content: none; }
+[data-skin="glass"] .tab.is-on::after { color: var(--gl-lit, var(--hi)); }
 
 /* 2. Section heads — a rule, not a colour. The `// ` prefix in the markup is
       already saying "section"; the head doesn't need to also be tinted. */
@@ -788,25 +783,83 @@
    It keeps glass's rim — the edges still read the field, which is the part
    worth keeping — and puts a declared palette on the type. A lit tube in a
    dark rack: the envelope catches whatever is around it, the phosphor inside
-   is its own colour. */
+   is its own colour.
+
+   The palette stays bench's discharge tubes on cold black, and stays loud.
+   A warm monochrome version of this panel was tried and thrown out: taking
+   the hues down to one sodium ladder made every ranking problem go away and
+   took the skin with it. Saturated emission on blue-black is the whole
+   character here, and the tubes are the argument — sodium, neon, mercury are
+   real emission lines, unevenly spaced, which is what stops the palette
+   reading as a hue rotation.
+
+   What was actually wrong was never the hue count. It was that the hues
+   arrived at the same *value*, so nothing ranked. bench orders by scarcity —
+   cyan rarest because state is rarest — and the port lost that: green landed
+   brightest and most-used, so the eye found headings before the active tab.
+
+   So the hues stay; the value ladder underneath them is what gets built.
+
+     --acc       state       cyan     brightest thing on the panel, always
+     --bench-rd  readout     sodium   live values, a step down
+     --bench-st  structure   neon     headings — a hue, but the dimmest one,
+                                      because it is the layer you read past
+
+   Green is still green and still unmistakably itself. It is just no longer
+   allowed to be the brightest green available, because a heading outranking
+   the selection was the actual bug. Hue says what kind of thing this is;
+   value says how much it matters. The port had the first and not the second.
+
+   Two things sit outside the ladder, both earned by being rare:
+
+     --err   fault. Red, and the only hue with no other job.
+
+     the wordmark, which reads --gl-lit — the field colour glass.js is
+             already computing for this skin and nothing was consuming. The
+             name is the one mark lit from outside rather than declared.
+             A fixed hue or a gradient on it is the obvious move and the one
+             that looks generated; this is glass's own idea, spent on the
+             single element with the size to carry it. Idle field gives
+             white, so it degrades correctly. */
 [data-skin="tube"] #panel {
+  /* Cold, and slightly deeper than the field's #05060c so the panel reads as
+     a darker body sitting *in* the light rather than a pane over it. The
+     emission hues need this: they only fluoresce against blue-black. */
   --panel:     rgba(4, 6, 12, 0.88);
+
+  /* Cool neutrals, matching the rim's 214,226,242. bench's warm bone was
+     wrong here — it was the one warm token on a cold panel, and it put the
+     brightest type and the brightest edge at odds about temperature. */
   --txt:       rgba(236, 240, 248, 0.86);
-  --hi:        #e8e3d5;
+  --hi:        #eef2f8;
   --dim:       rgba(236, 240, 248, 0.46);
   --dimmer:    rgba(236, 240, 248, 0.26);
 
   --line:      rgba(236, 240, 248, var(--gl-lift, 0.15));
   --line-hi:   rgba(236, 240, 248, calc(var(--gl-lift, 0.15) * 2));
 
+  /* readout — sodium, full strength. Values are the instrument layer and
+     they are allowed to be vivid; there just aren't many of them at once. */
   --bench-rd:  #ff9b21;
-  --bench-st:  #7ed321;
 
+  /* structure — neon, deliberately the darkest hue on the panel. Same green,
+     same saturation; it has simply lost the luminance fight it should never
+     have been winning. Headings get their weight from letterspacing and a
+     rule, and the hue tells you they are structure without shouting it. */
+  --bench-st:  #4e9e1f;
+
+  /* state — phosphor cyan, and the top of the ladder. Cyan reads bright at
+     this saturation in a way green does not, so the selected thing wins on
+     value and hue at once. Kept scarce: the active tab, the prompt sigil and
+     caret, and the two hover fills. Nothing decorative takes it. */
   --acc:       #5fd7d2;
   --acc-soft:  rgba(95, 215, 210, 0.74);
   --acc-wash:  rgba(95, 215, 210, 0.10);
   --acc2:      var(--acc);
+
+  /* fault, and the only hue that means one thing. */
   --err:       #ff3b30;
+
   --wry:       rgba(236, 240, 248, 0.42);
 
   --frame:     transparent;
@@ -862,10 +915,26 @@
 
 [data-skin="tube"] #panel > * { position: relative; z-index: 5; }
 
-/* state — brackets, not a fill. glass fills the active tab because without a
-   hue the brackets were too quiet to carry the selection alone; here cyan is
-   doing that job, so the character idiom comes back. It matches the console
-   directly underneath, which is the argument night makes too. */
+/* The wordmark, lit by the field.
+
+   Everything else on this panel is declared; this is the one mark that is
+   not. --gl-lit is the field colour glass.js already computes for this skin
+   (glassOn() covers tube) and which nothing here was reading — a live signal
+   going nowhere. It eases onto white below the energy floor, so an idle tank
+   gives plain white type rather than a name that fades out.
+
+   It is also the answer to "should the name be coloured": yes, but not by
+   me. A fixed hue or a gradient on an ASCII wordmark is the single most
+   generated-looking thing this page could do. Lit by the simulation it is
+   sitting in, it is the same idea glass runs, spent on the one element with
+   the size and the standing to carry it. */
+[data-skin="tube"] .ascii-name { color: var(--gl-lit, #fff); }
+
+/* state — brackets, not a fill, same as glass; here cyan carries the
+   selection where glass relies on brightness alone, and the character idiom
+   matches the console directly underneath. Hover moves value only, never hue — a tab
+   that goes one colour on hover and another when active changes identity
+   twice on the way to being clicked. */
 [data-skin="tube"] .tabs { gap: 4px; }
 [data-skin="tube"] .tab {
   color: var(--dim);
@@ -876,30 +945,82 @@
 [data-skin="tube"] .tab.is-on::before { content: '['; margin-right: 3px; }
 [data-skin="tube"] .tab.is-on::after  { content: ']'; margin-left: 3px; }
 
-/* structure */
+/* structure — the hue stays, the volume drops. These were the loudest thing
+   on the panel while being the layer you read past. The rule under them is
+   --line rather than a green tint: a coloured word over a coloured rule is
+   the same signal twice, and it doubled how much of the panel structure
+   occupied. --line also rides --gl-lift, so it breathes with the field. */
 [data-skin="tube"] .sec {
   color: var(--bench-st);
   letter-spacing: 0.16em;
-  border-bottom: 1px solid rgba(126, 211, 33, 0.30);
+  border-bottom: 1px solid var(--line);
   padding-bottom: 5px;
 }
 [data-skin="tube"] .sp-title { color: var(--bench-st); }
 
-/* readout */
-[data-skin="tube"] .cmdlog .ok { color: var(--bench-rd); }
-[data-skin="tube"] .sp-kv dd   { color: var(--bench-rd); }
+/* ── readout: this is what sodium is for ──
+   Live values the solver is running on, and nothing else. `vort = 14` is the
+   instrument layer — it is the console proving it is wired to the physics
+   rather than printing captions — so it gets the hue at full strength.
 
-[data-skin="tube"] .ps-user { color: var(--bench-rd); }
-[data-skin="tube"] .ps-host { color: var(--bench-st); }
+   `.ok` does not, because it is a sentence about something that happened,
+   not a value. It is also the most common line in the log; painting every
+   confirmation orange spent the readout hue on prose and left nothing for
+   the numbers to stand out against. Split at console.js's print class. */
+[data-skin="tube"] .cmdlog .val { color: var(--bench-rd); }
+[data-skin="tube"] .sp-kv dd    { color: var(--bench-rd); }
+[data-skin="tube"] .cmdlog .ok  { color: var(--txt); }
+
+/* Help's section headers are the same job as .sec — structure, the layer you
+   read past — so they take the same hue, and the log gets the panel's own
+   skeleton rather than a second convention. */
+[data-skin="tube"] .cmdlog .head { color: var(--bench-st); }
+
+/* ── the prompt ──
+   A real PS1 is coloured because it disambiguates: many terminals, several
+   machines, a directory that moves, root or not. Every hue in that scheme is
+   carrying a bit that actually varies.
+
+   None of it varies here. It is always dg, always fluid, always ~. Colouring
+   those segments copies the costume of information onto a string that has
+   none, and it cost four hues inside forty characters to do it.
+
+   But the console still has to read hotter than the prose above it — it is
+   the only place on the page where you can change the physics, and a prompt
+   that matches body text reads as a caption rather than something you can
+   operate. So the heat stays; it just moves off the static label and onto
+   the two things that are actually live.
+
+   The label itself is furniture: name, where, path, punctuation, falling in
+   value and carrying no hue at all. */
+[data-skin="tube"] .ps-user { color: var(--txt); }
+[data-skin="tube"] .ps-host { color: var(--dim); }
 [data-skin="tube"] .ps-path { color: var(--dim); }
-[data-skin="tube"] .ps-sig  { color: var(--acc); }
 [data-skin="tube"] .ps-at,
 [data-skin="tube"] .ps-sep  { color: var(--dimmer); }
-[data-skin="tube"] .prompt::after { color: var(--acc); }
-[data-skin="tube"] #cmd { caret-color: var(--acc); }
 
-/* emphasis — the body <b> borrowed the field hue under glass; bone here,
-   because emphasis is the legend row and legend does not change colour. */
+/* The sigil is the live mark — "type here" — and it is the one part of the
+   prompt worth a hue. Cyan, same as the active tab, because both mean the
+   thing you are currently operating. The caret matches it. */
+[data-skin="tube"] .ps-sig  { color: var(--acc); }
+[data-skin="tube"] .prompt::after { color: var(--acc); }
+
+/* Typed text is the hottest thing in the console. It outranks the label that
+   introduces it and the log above it — what you are in the middle of saying
+   to the solver is the most live thing on the panel. */
+[data-skin="tube"] #cmd {
+  color: var(--acc);
+  caret-color: var(--acc);
+}
+[data-skin="tube"] #cmd::placeholder { color: var(--dimmer); }
+
+/* The console keeps a warmer rule than the panel's internal ones, so the
+   band reads as a separate instrument rather than one more section. */
+[data-skin="tube"] .console { border-top-color: var(--line-hi); }
+
+/* emphasis — --hi, the top of the neutral ladder. Emphasis inside prose
+   should be the prose colour, brighter; a hue here would make it a different
+   kind of word rather than a stressed one. */
 [data-skin="tube"] .body b {
   color: var(--hi);
   border-bottom-color: rgba(236, 240, 248, 0.35);

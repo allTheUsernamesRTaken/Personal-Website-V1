@@ -12,19 +12,19 @@ const SKINS = {
   night: 'translucent dark panel, amber ticks that light where the flow works',
   steel: 'box-character frame on the sim grid, cold until the flow lights it',
   rime:  'no frame — smoke accreting on the panel, drawn in the sim\'s own ramp',
-  cut:   'opaque bone slab, black type, hard offset shadow — wins on value',
-  block: 'dark, chromatic, full-length edge bars — wins on scale',
+  //cut:   'opaque bone slab, black type, hard offset shadow — wins on value',
+  //block: 'dark, chromatic, full-length edge bars — wins on scale',
   glass: 'no accent at all — colourless sheet, lit only by the fluid behind it',
   bench: 'lab instrument face — five hues, one job each, none of them shared',
-  tube:  'glass\'s lit rim, but the type declares its own palette instead'
+  tube:  'discharge tubes on cold black, ranked by value — the name lit by the field'
 };
 
 const SKIN_IDS = Object.keys(SKINS);
 const SKIN_KEY = 'dg.skin';
-const DEFAULT_SKIN = 'night';
+const DEFAULT_SKIN = 'glass';
 
 /* Old names that shipped before, so a saved preference doesn't fall back to
-   night and look like the setting was lost. */
+   the default and look like the setting was lost. */
 const SKIN_ALIASES = { deck: 'steel' };
 
 let currentSkin = DEFAULT_SKIN;

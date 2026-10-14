@@ -122,13 +122,17 @@
 .run:hover { border-color: var(--acc); background: var(--acc-wash); }
 
 /* ── links ─────────────────────────────────────────────────────────── */
+/* Sits directly under the ident paragraph rather than at the foot of the
+   pane, so it is framed on both sides — a rule above only would read as the
+   end of the section it is actually introducing. */
 .links {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 20px;
-  margin: 18px 0 14px;
-  padding-top: 14px;
+  margin: 14px 0 20px;
+  padding: 13px 0;
   border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 .link {
   display: inline-flex;

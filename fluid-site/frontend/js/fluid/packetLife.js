@@ -105,8 +105,26 @@ function lifeIsAvailable() {
   return !REDUCED && window.innerWidth >= 760;
 }
 
+/* The main panel's cells, when it isn't a solid body. The canvas is drawn
+   under the panel, so an organism that swims beneath it vanishes — the mask
+   used to keep them out, and with `solid off` nothing does. Same rounding as
+   stampRect() in solids.js. Refreshed once per update, not per lifeOpen(). */
+let lifeKeepOut = null;
+function lifeRefreshKeepOut() {
+  lifeKeepOut = null;
+  if (P.solids || !panelEl || !panelEl.isConnected || !COLS) return;
+  const r = panelEl.getBoundingClientRect();
+  const cw = window.innerWidth / COLS, ch = window.innerHeight / ROWS;
+  lifeKeepOut = {
+    i0: Math.round(r.left / cw), i1: Math.round(r.right / cw) - 1,
+    j0: Math.round(r.top / ch),  j1: Math.round(r.bottom / ch) - 1
+  };
+}
+
 function lifeOpen(i, j, width) {
   if (i < 2 || j < 2 || i + width >= COLS - 2 || j >= ROWS - 2) return false;
+  const k = lifeKeepOut;
+  if (k && j >= k.j0 && j <= k.j1 && i + width >= k.i0 && i <= k.i1) return false;
   for (let di = 0; di <= width; di++) if (solid[ix(i + di, j)]) return false;
   return true;
 }
@@ -279,6 +297,7 @@ function lifeNewPacket(species, x, y, angle) {
 }
 
 function lifeBuildPackets() {
+  lifeRefreshKeepOut();
   packetLife.packets.length = 0;
   const count = window.innerWidth < 980 ? 6 : 8;
   for (let n = 0; n < count; n++) {
@@ -399,6 +418,7 @@ function packetLifeUpdate(dt, now) {
   dt = Math.min(dt, 0.05);
   if (dt <= 0) return;
 
+  lifeRefreshKeepOut();
   lifeVentFrame(now);
   lifeAdvectFood(dt);
 
