@@ -114,15 +114,12 @@ function buildSteel(W, H) {
 }
 
 /* ── rime: the band ───────────────────────────────────────────────────
-   Two cells deep. Depth 1 needs far more accretion to show at all, so the
-   edge has variable thickness instead of a constant outline. */
+   One cell deep. A second inboard row read as a thick outline rather than
+   frost; the ragged edge comes from which cells are lit, not from depth. */
 function buildRime(W, H) {
   const out = [];
-  for (let d = 0; d < 2; d++) {
-    if (W - 2 * d < 3 || H - 2 * d < 3) break;
-    for (let u = d; u < W - d; u++) { out.push({ u, v: d, d }); out.push({ u, v: H - 1 - d, d }); }
-    for (let v = d + 1; v < H - 1 - d; v++) { out.push({ u: d, v, d }); out.push({ u: W - 1 - d, v, d }); }
-  }
+  for (let u = 0; u < W; u++) { out.push({ u, v: 0 }); out.push({ u, v: H - 1 }); }
+  for (let v = 1; v < H - 1; v++) { out.push({ u: 0, v }); out.push({ u: W - 1, v }); }
   return out;
 }
 
@@ -198,6 +195,8 @@ function drawSteel(g) {
   }
 }
 
+const ACC_MAX = 2.2, ACC_NORM = ACC_MAX / (1 + ACC_MAX);
+
 function drawRime(g) {
   const nCh = CHARS.length - 1;
 
@@ -210,24 +209,37 @@ function drawRime(g) {
     const spd = Math.sqrt(a * a + b * b);
     // Flow driven *into* the panel is what actually piles up against it.
     const into = Math.max(0, -(a * s.nx + b * s.ny));
-    const press = sD[i] * 2.0 + into * 3.4 + spd * 0.6;
+
+    /* Frost is deposited smoke, so flow only scales the deposit — it never
+       makes one on its own. Velocity outlives density in the solver by about
+       10x (velDamp vs fade), so an additive flow term kept the band lit long
+       after the smoke feeding it had gone. The dead zone is roughly where
+       the background's own glyphs drop below visible; under it the sim draws
+       nothing, so the frame shouldn't either. */
+    const press = Math.max(0, sD[i] - 0.04) * (2.0 + into * 11 + spd * 2);
 
     /* Accretion: rises fast, sheds slowly, so a gust leaves frost behind for
        about a second instead of vanishing with the smoke. */
-    sAcc[i] = Math.min(2.2, sAcc[i] * 0.93 + press * 0.17);
-    const norm = sAcc[i] / (1 + sAcc[i]);
+    sAcc[i] = Math.min(ACC_MAX, sAcc[i] * 0.93 + press * 0.17);
 
-    // Depth 1 needs real accretion, so thickness varies along the edge.
-    if (norm < (c.d === 0 ? 0.07 : 0.30)) continue;
+    /* Normalised against the cap, not against 1: x/(1+x) at ACC_MAX is only
+       ~0.69, which stopped the ramp at 'w' instead of reaching '$' like the
+       field's densest cells do. */
+    const t = (sAcc[i] / (1 + sAcc[i])) / ACC_NORM;
+    if (t < 0.10) continue;
 
-    const t = c.d === 0 ? norm : (norm - 0.30) / 0.70;
     const ci = Math.max(1, Math.min((Math.pow(t, 0.85) * CHARS.length) | 0, nCh));
+
+    /* Brightness runs to zero with the frost, like the field's does with
+       density. A floor here meant the last glyph before the cutoff was still
+       at a third of full ink, so the band never faded — it just stopped. */
+    const br = Math.pow(t, 1.25);
 
     /* Colour stays near the frost base. The variation people read here is in
        the glyphs, which is the medium's own channel for it — pulling hue per
-       cell as well is what made the box frame shimmer. */
-    const br = 0.30 + 0.70 * t;
-    let r = cfInk[0] * br, gr = cfInk[1] * br, bl = cfInk[2] * br;
+       cell as well is what made the box frame shimmer. The tint is mixed
+       before dimming so it can't lift a fading glyph back up. */
+    let r = cfInk[0], gr = cfInk[1], bl = cfInk[2];
 
     if (spd > 0.02) {
       let h = Math.atan2(b, a);
@@ -238,6 +250,7 @@ function drawRime(g) {
       gr = gr * (1 - w) + f[1] * w;
       bl = bl * (1 - w) + f[2] * w;
     }
+    r *= br; gr *= br; bl *= br;
     cfCtx.fillStyle = 'rgb(' + (r | 0) + ',' + (gr | 0) + ',' + (bl | 0) + ')';
     cfCtx.fillText(CHARS[ci], gx(c.u), gy(c.v));
   }

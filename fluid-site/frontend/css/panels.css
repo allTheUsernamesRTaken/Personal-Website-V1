@@ -92,8 +92,50 @@
 .sp-kv dt { color: var(--dim); letter-spacing: 0.06em; }
 .sp-kv dd { color: var(--txt); }
 
-.sp-solver .sp-kv dd,
-.sp-life .sp-kv dd { font-variant-numeric: tabular-nums; }
+.sp-solver .sp-kv dd { font-variant-numeric: tabular-nums; }
+
+.subpanel[data-panel="life"] { min-width: 220px; }
+.sp-life { padding: 8px 10px; }
+.sp-life-summary { font-size: 11px; font-variant-numeric: tabular-nums; }
+.sp-life-controls { display: flex; gap: 6px; margin-top: 7px; }
+.sp-life-controls .sp-vent {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 6px 5px;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-align: center;
+}
+.sp-outlet-picker { flex: 0 0 106px; min-width: 0; }
+.sp-outlet-picker select {
+  width: 100%;
+  height: 100%;
+  padding: 3px;
+  border: 1px solid var(--line-hi);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--txt);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  cursor: pointer;
+}
+
+.sp-life-status {
+  min-height: 2.8em;
+  margin-top: 7px;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--dim);
+}
+
+.sp-life-key {
+  margin-top: 6px;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--dim);
+}
 
 /* The one control on a subpanel that does something to the field, so it gets
    the accent the title bar gets. Held, not clicked — it vents while down. */
@@ -114,7 +156,9 @@
   touch-action: none;
 }
 .sp-vent:hover { border-color: var(--acc); color: var(--hi); }
-.sp-vent:active { background: var(--line); color: var(--hi); }
+.sp-vent:active,
+.sp-vent.is-feeding { background: var(--line); color: var(--hi); }
+.sp-vent:focus-visible { outline: 1px solid var(--acc); outline-offset: 3px; }
 
 .sp-note {
   margin-top: 12px;

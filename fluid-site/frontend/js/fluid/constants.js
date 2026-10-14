@@ -3,6 +3,9 @@
 
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+const SIM_HZ = 60;
+const SOLVER_HZ = 30;
+
 /* Live parameters. The console writes to these, so they're a mutable
    object instead of the consts this used to be. */
 const P = {

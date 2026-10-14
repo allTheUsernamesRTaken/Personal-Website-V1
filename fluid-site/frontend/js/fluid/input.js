@@ -36,6 +36,7 @@ function burstAt(ci, cj) {
    solid body. Clicks over it still don't — those are for the panel's own
    buttons. Touches get a sideways-only version further down. */
 document.addEventListener('mousemove', e => {
+  if (e.target.closest && e.target.closest('.subpanel')) { prevCi = -1; prevCj = -1; return; }
   if (P.solids && overPanel(e)) { prevCi = -1; prevCj = -1; return; }
   const { ci, cj } = getCell(e.clientX, e.clientY);
   noteUserInput();
@@ -49,7 +50,7 @@ document.addEventListener('mouseleave', () => { prevCi = -1; prevCj = -1; });
    blew it away; food is released from the habitat panel now, and this drag is
    just a drag — which is what makes it usable for steering. */
 document.addEventListener('mousedown', e => {
-  if (overPanel(e)) return;
+  if (overPanel(e) || (e.target.closest && e.target.closest('.subpanel'))) return;
   const { ci, cj } = getCell(e.clientX, e.clientY);
   noteUserInput();
   burstAt(ci, cj);

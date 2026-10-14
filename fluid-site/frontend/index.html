@@ -106,10 +106,9 @@
         <div class="entry-h"><span class="who">ZigZag Technologies</span><span class="when">may '26 — aug '26</span></div>
         <div class="role">Software Engineer Intern · Toronto (remote)</div>
         <p class="body">
-          Digital-twin control platform for autonomous vending machines, plus the
-          adapter mapping simulated operations onto live machine APIs. Built the
-          physical-command lifecycle — dispatch, ack, verify, reconcile — so a
-          network partition can't become a double dispense. 1,000+ replayable runs
+          Built digital-twin / backend tools and platform for autonomous vending machines, plus the
+          adapter for mapping simulated operations onto live machine APIs. Built things accounting for stuff like
+          network partitions, to prevent a double dispense. 1,000+ replayable runs
           against 20+ injected API, hardware and operator failure modes, and
           offline-safe state for the Raspberry Pi deployments.
         </p>
@@ -119,8 +118,8 @@
         <div class="entry-h"><span class="who">Legends Haul</span><span class="when">apr '26 — may '26</span></div>
         <div class="role">Software Developer Intern · Vancouver</div>
         <p class="body">
-          Two-stage signature detection for AR automation: OpenCV contour
-          heuristics feeding a CPU-tuned YOLOv8 with a hard-negative mining loop,
+          Built software for automating data entry, including a finetuned signature detection algo: OpenCV contour
+          heuristics + a CPU-tuned YOLOv8 with a hard-negative mining loop,
           to tell a real signature from a handwritten note on the same form.
           82% → 94% in four training runs. Took ~4 hrs/day of manual entry off the
           floor and caught 600 historical errors on the way through.
@@ -160,8 +159,7 @@
       <article class="entry">
         <div class="entry-h"><span class="who" data-detail="landmarks" role="button" tabindex="0">Facial-Landmark Feedback Pipeline</span><span class="when">python · opencv</span></div>
         <p class="body">
-          Landmark feedback for drawings as well as photographs. Where the neural
-          detectors gave up — rotated heads, pencil sketches — it falls back to CPD
+          Landmark feedback for drawings as well as photographs. Does a bit better than neural detectors for rotated heads, pencil sketches, uses CPD
           registration and solvePnP geometry. On a 50-case benchmark: 98.9% / 100%
           precision-recall, against GPT-5.5's 63.5% / 70.5%.
         </p>
@@ -172,7 +170,7 @@
         <p class="body">
           A Roomba that follows you around and sounds an alarm when it sees a phone. On-device YOLOv8 for frame-rate
           phone/face tracking, one cloud Rekognition call to work out who it's
-          looking at. The patrol controller is a finite state machine doing
+          looking at. The controller is a finite state machine doing
           proportional visual servoing off the bounding box.
         </p>
       </article>
@@ -200,8 +198,8 @@
 
       <h2 class="sec">// NON-WORK</h2>
       <p class="body">
-        Rock climbing is pretty cool, I also like cooking and want to get better at baking. I've also been trying to read more. Hiking is pretty fun too - 
-        in Vancouver i did grouse mountain and cypress a few times, want to try to hike more in the future (not a lot of mountains in Waterloo)
+        Rock climbing is pretty cool, i also like cooking and want to get better at baking. i've also been trying to read more. hiking is pretty fun too - 
+        in vancouver i did grouse mountain and cypress a few times, want to try to hike more in the future (not a lot of mountains in waterloo)
       </p>
     </section>
 

@@ -9,14 +9,15 @@
    wake stays keyed to the old bounding box. */
 
 const SKINS = {
-  night: 'translucent dark panel, amber ticks that light where the flow works',
-  steel: 'box-character frame on the sim grid, cold until the flow lights it',
-  rime:  'no frame — smoke accreting on the panel, drawn in the sim\'s own ramp',
+   glass: 'monotone',
+   tube:  'glass but with colors',
+   
+   steel: 'character frame on the grid, lights up from the flow',
+   rime:  'no frame, grey panel',
+   night: 'amber ticks that glow with flow',
   //cut:   'opaque bone slab, black type, hard offset shadow — wins on value',
   //block: 'dark, chromatic, full-length edge bars — wins on scale',
-  glass: 'no accent at all — colourless sheet, lit only by the fluid behind it',
-  bench: 'lab instrument face — five hues, one job each, none of them shared',
-  tube:  'discharge tubes on cold black, ranked by value — the name lit by the field'
+   //bench: 'lab instrument, olive-y look'
 };
 
 const SKIN_IDS = Object.keys(SKINS);

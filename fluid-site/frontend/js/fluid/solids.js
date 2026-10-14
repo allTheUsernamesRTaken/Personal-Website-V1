@@ -14,6 +14,13 @@ const panelEl = document.getElementById('panel');
    restamps on every drag frame, which is the whole point of the thing:
    dragging a panel is dragging an obstacle through the flow. */
 const solidEls = [panelEl];
+let solidsDirty = false;
+
+function markSolidsDirty() { solidsDirty = true; }
+
+function flushSolids() {
+  if (solidsDirty) rebuildSolids();
+}
 
 function registerSolid(el) {
   if (el && solidEls.indexOf(el) < 0) solidEls.push(el);
@@ -170,6 +177,7 @@ function displaceCovered(mvx, mvy, movingSolid) {
 
 function rebuildSolids() {
   if (!solid) return;
+  solidsDirty = false;
 
   /* A realloc means the previous mask describes a different grid, so there's
      nothing meaningful to diff against and displacement sits this one out. */
@@ -205,6 +213,9 @@ function rebuildSolids() {
   }
 
   if (!resized && P.displace) displaceCovered(mvx, mvy, movingSolid);
+  // Resolve life against the new geometry before the next render, even on
+  // display frames that do not advance the fixed simulation clock.
+  if (typeof packetLifeDisplaceCovered === 'function') packetLifeDisplaceCovered();
 }
 
 /* Grid is sized off the viewport, so a resize means a full realloc.

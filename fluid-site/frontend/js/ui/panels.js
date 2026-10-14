@@ -44,7 +44,7 @@ const PANEL_DEFS = {
      off its live rect — so dragging this window herds them. */
   life: {
     title: 'life',
-    w: 300, h: 292,
+    w: 240, h: 176, minW: 220,
     build: buildLifeBody,
     live:  updateLifeBody,
     guard: () => lifeIsAvailable()
@@ -165,24 +165,28 @@ function buildDetailBody(arg) {
   return d;
 }
 
-/* The habitat's instrument face. Everything on it is read off the same
-   solver the rest of the page runs on — `shelter` is the mean flow speed at
-   the organisms, so watching it fall is watching them find the wake. */
+/* Keep the habitat small: a summary, feeding control, fixed outlet and one
+   event line. The simulation owns the detailed counters, not the window. */
 function buildLifeBody() {
   const d = document.createElement('div');
   d.className = 'sp-body sp-life';
   d.innerHTML =
-    '<dl class="sp-kv">' +
-    '<dt>pop</dt><dd data-f="pop">—</dd>' +
-    '<dt>fed</dt><dd data-f="fed">—</dd>' +
-    '<dt>adrift</dt><dd data-f="adrift">—</dd>' +
-    '<dt>vented</dt><dd data-f="vented">—</dd>' +
-    '<dt>shelter</dt><dd data-f="shelter">—</dd>' +
-    '</dl>' +
-    '<button class="sp-vent" type="button">release food ▸</button>' +
-    '<p class="sp-note">food is a passive tracer — it goes where the field ' +
-    'takes it. drag your cursor to steer a plume onto them, and drag this ' +
-    'window to move the calm water they are sitting in.</p>';
+    '<p class="sp-life-summary"><span data-f="pop">—</span> alive · ' +
+    '<span data-f="eggs">—</span> eggs · <span data-f="adrift">—</span> food</p>' +
+    '<div class="sp-life-controls"><button class="sp-vent" type="button">Hold to feed</button>' +
+    '<label class="sp-outlet-picker"><span class="sr-only">Food outlet</span>' +
+    '<select aria-label="Food outlet">' +
+    '<option value="left">Out: left ←</option><option value="right">Out: right →</option>' +
+    '<option value="top">Out: top ↑</option><option value="bottom">Out: bottom ↓</option>' +
+    '</select></label></div>' +
+    '<p class="sp-life-status" role="status" aria-live="polite" data-f="status"></p>' +
+    '<p class="sp-life-key" title="&lt;&gt; forage and scavenge; {} graze. + meal, * hatch, ! bite.">&lt;&gt; forage · {} graze · @ steals<br>o egg · x remains</p>';
+
+  const outlet = d.querySelector('.sp-outlet-picker select');
+  outlet.addEventListener('change', () => {
+    lifeSetOutletSide(outlet.value);
+    updateLifeBody(d);
+  });
 
   /* Hold to keep venting. The pointer events are stopped here rather than
      allowed to bubble: the document-level mouse handler injects velocity
@@ -190,17 +194,46 @@ function buildLifeBody() {
      used it would be the same design mistake this rewrite is undoing. */
   const vent = d.querySelector('.sp-vent');
   const stop = e => e.stopPropagation();
+  const start = () => {
+    if (packetLife.venting) return;
+    packetLifeRelease(performance.now());
+    packetLifeSetVenting(true);
+    updateLifeBody(d);
+  };
+  const release = () => {
+    packetLifeSetVenting(false);
+    updateLifeBody(d);
+  };
   vent.addEventListener('mousedown', stop);
   vent.addEventListener('pointerdown', e => {
     stop(e);
+    if (e.button !== 0) return;
     vent.setPointerCapture(e.pointerId);
-    packetLifeRelease(performance.now());
-    packetLifeSetVenting(true);
+    start();
   });
-  const release = () => packetLifeSetVenting(false);
   vent.addEventListener('pointerup', release);
   vent.addEventListener('pointercancel', release);
+  vent.addEventListener('lostpointercapture', release);
   vent.addEventListener('blur', release);
+  vent.addEventListener('keydown', e => {
+    if (e.key !== ' ' && e.key !== 'Enter') return;
+    e.preventDefault();
+    stop(e);
+    if (!e.repeat) start();
+  });
+  vent.addEventListener('keyup', e => {
+    if (e.key !== ' ' && e.key !== 'Enter') return;
+    e.preventDefault();
+    release();
+  });
+  // Assistive technology can activate a button without pointer/key events.
+  vent.addEventListener('click', e => {
+    stop(e);
+    if (e.detail === 0 && !packetLife.venting) {
+      packetLifeRelease(performance.now());
+      updateLifeBody(d);
+    }
+  });
 
   return d;
 }
@@ -212,10 +245,26 @@ function updateLifeBody(body) {
     if (el && el.textContent !== v) el.textContent = v;
   };
   set('pop', String(s.pop));
-  set('fed', s.fed.toFixed(2));
+  set('eggs', String(s.eggs));
+  const hunterState = s.hunterState === 'chasing' ? '@ chasing prey'
+    : s.hunterState === 'feeding' ? '@ eating stolen food'
+    : s.hunterState === 'resting' ? '@ resting after a bite'
+    : s.hunterState === 'searching' ? '@ seeking fed prey' : 'none — recovering';
   set('adrift', String(s.adrift));
-  set('vented', String(s.released));
-  set('shelter', s.shelter.toFixed(2) + ' cell/s');
+  const outlet = lifeVentCell();
+  const picker = body.querySelector('.sp-outlet-picker select');
+  if (picker.value !== packetLife.outletSide) picker.value = packetLife.outletSide;
+  picker.title = outlet ? 'Food outlet' : 'Outlet blocked — choose another side or move the panel';
+  const importantEvent = performance.now() < packetLife.eventUntil && packetLife.eventPriority >= 2;
+  const status = importantEvent ? packetLife.lastEvent : !outlet ? 'Outlet blocked — choose another side or move the panel.' : packetLife.venting
+    ? (s.adrift >= LIFE_MAX_FOOD ? 'Food limit reached — let them eat.' : 'Feeding… guide the dots toward a creature.')
+    : performance.now() < packetLife.eventUntil ? packetLife.lastEvent
+    : hunterState + '. Hold to feed.';
+  set('status', status);
+  const vent = body.querySelector('.sp-vent');
+  const label = packetLife.venting ? 'Release to stop' : 'Hold to feed';
+  if (vent.textContent !== label) vent.textContent = label;
+  vent.classList.toggle('is-feeding', packetLife.venting);
 }
 
 /* ── open / close ─────────────────────────────────────────────────────── */
@@ -306,7 +355,7 @@ function place(el, def) {
   if (isNarrow()) return;                // CSS puts it over the main panel
 
   const pr = panelEl ? panelEl.getBoundingClientRect() : { right: 80, top: 80 };
-  const w = Math.max(SUB_MIN_W, def.w);
+  const w = Math.max(def.minW || SUB_MIN_W, def.w);
   const h = def.h;
   const step = _cascade++ * 28;
 
@@ -325,16 +374,14 @@ function place(el, def) {
 function makeDraggable(el, handle, key) {
   if (isNarrow()) return;
 
-  let dx = 0, dy = 0, raf = 0, moved = false;
+  let dx = 0, dy = 0;
 
   const move = e => {
     el.style.left = (e.clientX - dx) + 'px';
     el.style.top  = (e.clientY - dy) + 'px';
-    moved = true;
-    /* Restamp on the next frame rather than per event: pointermove can fire
-       several times a frame, and the mask only needs to be right once. This
-       is what makes the flow answer the drag while it's happening. */
-    if (!raf) raf = requestAnimationFrame(() => { raf = 0; if (moved) { rebuildSolids(); moved = false; } });
+    // The main loop restamps before simulation and drawing. A separate rAF
+    // callback could run after the loop and leave life under the old mask.
+    markSolidsDirty();
   };
 
   const up = e => {
@@ -342,7 +389,6 @@ function makeDraggable(el, handle, key) {
     handle.removeEventListener('pointermove', move);
     handle.removeEventListener('pointerup', up);
     handle.removeEventListener('pointercancel', up);
-    if (raf) { cancelAnimationFrame(raf); raf = 0; }
     clampIntoView(el);
     rebuildSolids();
     el.classList.remove('is-drag');
