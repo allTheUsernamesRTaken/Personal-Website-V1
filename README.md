@@ -67,13 +67,21 @@ Dropping a solid neighbor is a zero-gradient (Neumann) condition at the wall —
 
 `render.js` draws one character per cell, skips empty ones to save time. Denser ASCII characters (from `.` through symbols like `#`, `@`, and `$`) mean more smoke; hue comes from the direction the fluid moves, and it gets brighter where it's fast or swirly.
 
-`loop.js` is the loop. Physics only runs every other frame (`_frame % 2`) but draws every frame. Half for speed, half because it looked better that way.
+`loop.js` advances Life and sources at a fixed 60 Hz and the fluid solver at 30 Hz, while drawing at the display refresh rate. Catch-up is capped at six ticks per frame, and returning from a hidden tab does not replay the paused time.
 
 ## Interacting:
 
 `input.js` takes the mouse/touch position, turns it into a cell, dumps density + velocity in. Moving paints a stream in the drag direction, clicking shoots it out in a circle. Ignores clicks over the panel so the buttons still work. Added touch handlers later for phone.
 
 There's also a command line at the bottom of the panel (`js/ui/console.js`). It isn't decoration — it writes to the same parameter object the solver reads, so `vort 14` really does change the physics on the next step. `help` lists everything. `echo <text>` rasterises the text into an offscreen canvas at grid resolution and uses the alpha channel as a smoke deposit, so the letters come out made of fluid and the flow pulls them apart.
+
+`life on` opens a compact 240×176 draggable habitat with a population summary, feed button and outlet dropdown. Choose Left, Right, Top or Bottom, then hold the feed button (or Space/Enter while focused). The selected side stays fixed as the current and panel move; a blocked outlet reports that it is blocked. Move the current to guide the released food. `<>` forage and scavenge, `{}` graze nearby, and one amber `@` steals food from fed adults with a 2.5-second attack cooldown. A direction cue shows pursuit, `@!` and a prey flash mark a bite, and the event line reports the hunter's current activity.
+
+Adult, well-fed `{}` lay single-character `o` eggs with a 12-second cooldown. Eggs hatch after four seconds if there is room; `+` marks eating and `*` marks hatching. Feeding restores energy. Starvation and aging leave an `x` for several seconds, which becomes `:` and finally up to two food dots. Foragers can consume these remains, so they also act as scavengers. Death and bite notices take priority over routine feeding messages.
+
+Creatures, eggs and remains share 16 slots, with at most four eggs and 90 food particles. A depleted habitat seeds one recovery egg at most every ten seconds, aiming for three prey and one hunter. Target searches run at 8 Hz without adding another fluid solve. Moving panels push creatures, eggs and food to a free edge; strict visual bounds keep whole sprites clear of panel text. Creatures steer inward near screen edges, with outward flow reduced and a final containment boundary. Edge contacts and viewport shrinking preserve the creature and its food, age and cooldowns; they do not fade it out or replace it.
+
+Run the visual-boundary, collision, feeding, ecology and simulation-clock regressions with `node --test tests/life.test.cjs` (Node 18 or later). They include a four-minute simulated run with feeding and panel movement to check population limits and valid state.
 
 ## The numbers:
 

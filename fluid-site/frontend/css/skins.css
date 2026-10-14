@@ -219,7 +219,7 @@
    anything that depends on the sim being busy would fail the moment someone
    loads the page and doesn't touch it. */
 [data-skin="glass"] #panel {
-  --panel:     rgba(4, 6, 12, 0.88);
+  --panel:     rgba(4, 6, 12, 0.80);
   --txt:       rgba(236, 240, 248, 0.86);
   --hi:        #fff;
   --dim:       rgba(236, 240, 248, 0.46);
@@ -825,7 +825,7 @@
   /* Cold, and slightly deeper than the field's #05060c so the panel reads as
      a darker body sitting *in* the light rather than a pane over it. The
      emission hues need this: they only fluoresce against blue-black. */
-  --panel:     rgba(4, 6, 12, 0.88);
+  --panel:     rgba(4, 6, 12, 0.80);
 
   /* Cool neutrals, matching the rim's 214,226,242. bench's warm bone was
      wrong here — it was the one warm token on a cold panel, and it put the
