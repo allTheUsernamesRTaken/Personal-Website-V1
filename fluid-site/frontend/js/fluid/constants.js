@@ -33,7 +33,10 @@ const P = {
 const DEFAULTS = Object.assign({}, P);
 
 /* Cell size in CSS px. Smaller on phones: at 11px a 390px screen is only 35
-   columns, which is too coarse for the smoke to read as smoke. */
+   columns, which is too coarse for the smoke to read as smoke. 8px wasn't
+   enough either — 48 columns still put desktop-sized glyphs on a hand-sized
+   screen. 6x7 gives ~65, so the texture reads at the same density it does
+   on a laptop, and it's still fewer cells than a desktop grid. */
 let CW = 11, CH = 12;
 
 const canvas = document.getElementById('c');
@@ -49,8 +52,8 @@ const MONO = 'ui-monospace, "Cascadia Mono", Consolas, "DejaVu Sans Mono", Menlo
 
 function allocGrid() {
   const narrow = window.innerWidth < 760;   // matches the CSS breakpoint
-  CW = narrow ? 8 : 11;
-  CH = narrow ? 9 : 12;
+  CW = narrow ? 6 : 11;
+  CH = narrow ? 7 : 12;
 
   COLS = Math.max(32, Math.min(Math.floor(window.innerWidth  / CW), 220));
   ROWS = Math.max(20, Math.min(Math.floor(window.innerHeight / CH), 140));

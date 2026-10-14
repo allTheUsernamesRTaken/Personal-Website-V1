@@ -192,7 +192,7 @@
 [data-skin="rime"] #panel { --char-ink: #cfe4f2; }
 
 @media (max-width: 760px) {
-  /* Cells are 8x9 here rather than 11x12, so the band is smaller too. */
+  /* Cells are 6x7 here rather than 11x12, so the band is smaller too. */
   [data-skin="steel"] #panel,
   [data-skin="rime"] #panel { padding: 30px 26px 22px; }
 

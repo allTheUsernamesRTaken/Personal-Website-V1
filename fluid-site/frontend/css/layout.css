@@ -136,8 +136,8 @@
    freeRegion() puts the intro stamp, so the name still condenses out of
    the smoke on a phone. */
 @media (max-width: 760px) {
-  /* allocGrid() drops to 8x9 cells below this width. */
-  :root { --cell-w: 8px; --cell-h: 9px; }
+  /* allocGrid() drops to 6x7 cells below this width. */
+  :root { --cell-w: 6px; --cell-h: 7px; }
 
   #panel {
     left: 10px; right: 10px; width: auto;
