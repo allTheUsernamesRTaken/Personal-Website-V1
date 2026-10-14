@@ -21,7 +21,26 @@
       "Read(//tmp/**)",
       "Bash(node --check js/ui/console.js)",
       "Bash(curl -s http://localhost:8931/)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(node frametest.js)",
+      "Bash(awk 'NR>=1 && NR<=62')",
+      "Bash(node tiling.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8931/js/ui/charFrame.js)",
+      "Bash(node --check js/ui/ticks.js)",
+      "Bash(node --check js/ui/skins.js)",
+      "Bash(node --check js/fluid/loop.js)",
+      "Bash(npx --no-install puppeteer --version)",
+      "Bash(node --check js/ui/charFrame.js)",
+      "Bash(node -e ' *)",
+      "Bash(node solidstest.js)",
+      "Bash(node displacetest.js)",
+      "Bash(node harness.js)",
+      "Bash(node probe.js 2)",
+      "Bash(node probe.js 0)",
+      "Bash(node --check js/fluid/packetLife.js)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\danie\\AppData\\Local\\Temp\\claude\\c--Users-danie-OneDrive-Desktop-fluid-site-Personal-Website-V1\\cc57621c-06dc-479e-b174-1adf79a93ee7"
     ]
   }
 }
