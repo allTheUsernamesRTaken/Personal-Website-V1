@@ -367,4 +367,8 @@ document.querySelector('.prompt').addEventListener('click', focusCmd);
 document.querySelectorAll('.run').forEach(b =>
   b.addEventListener('click', () => runCommand(b.dataset.run)));
 
-print('`help` for commands, 1-4 for sections.');
+/* 1-4 means nothing without a keyboard. On touch, say the one thing that
+   isn't discoverable: sideways on the panel stirs, up and down scrolls. */
+print(window.matchMedia('(pointer: coarse)').matches
+  ? '`help` for commands. swipe sideways to stir.'
+  : '`help` for commands, 1-4 for sections.');

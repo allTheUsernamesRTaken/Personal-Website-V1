@@ -192,3 +192,18 @@
   .body { font-size: 13px; }
   .entry { margin-bottom: 17px; }
 }
+
+/* Landscape phone — see layout.css. Every px of head is a px of pane. */
+@media (orientation: landscape) and (max-height: 540px) {
+  .head { margin-bottom: 6px; }
+  .ascii-name { font-size: 4.6px; }
+  .strap {
+    font-size: 15px;
+    margin-top: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tabs { margin-bottom: 10px; }
+  .tab { padding: 6px 10px; font-size: 18px; }
+}

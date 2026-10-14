@@ -167,16 +167,21 @@ function implosionFrame(now) {
 const STROKE_MS = 1250;
 
 /* Wherever the panel isn't. On a phone the panel spans the width and is
-   anchored to the bottom, so the lane is the band across the top instead. */
+   anchored to the top, so the lane is the band across the bottom instead —
+   the stroke used to look for a top band, and never ran on a phone at all. */
 function strokePath() {
   if (!panelEl) return { x0: 0.5, x1: 0.94, yc: 0.5 };
 
   const r = panelEl.getBoundingClientRect();
-  const rightGap = 1 - r.right / window.innerWidth;
-  const topGap   = r.top / window.innerHeight;
+  const rightGap  = 1 - r.right / window.innerWidth;
+  const topGap    = r.top / window.innerHeight;
+  const bottomGap = 1 - r.bottom / window.innerHeight;
 
   if (rightGap > 0.16) {
     return { x0: r.right / window.innerWidth + 0.05, x1: 0.95, yc: 0.5 };
+  }
+  if (bottomGap > 0.16) {
+    return { x0: 0.10, x1: 0.90, yc: 1 - bottomGap * 0.5 };
   }
   if (topGap > 0.16) {
     return { x0: 0.10, x1: 0.90, yc: topGap * 0.55 };

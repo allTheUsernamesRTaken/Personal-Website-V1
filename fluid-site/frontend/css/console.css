@@ -89,3 +89,11 @@
   /* iOS zooms the whole page when you focus an input under 16px. */
   #cmd { font-size: 16px; }
 }
+
+/* Landscape phone — see layout.css. */
+@media (orientation: landscape) and (max-height: 540px) {
+  .console { margin: 0 -14px; padding: 0 14px; }
+  .cmdlog { max-height: 44px; padding-top: 4px; }
+  .prompt-row { padding: 5px 0 7px; }
+  #cmd { font-size: 16px; }
+}

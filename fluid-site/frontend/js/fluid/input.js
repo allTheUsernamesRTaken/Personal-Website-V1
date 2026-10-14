@@ -33,8 +33,8 @@ function burstAt(ci, cj) {
 }
 
 /* Moving over the panel stirs the fluid behind it when the panel isn't a
-   solid body. Clicks and touches over it still don't — those are for the
-   panel's own buttons and scrolling. */
+   solid body. Clicks over it still don't — those are for the panel's own
+   buttons. Touches get a sideways-only version further down. */
 document.addEventListener('mousemove', e => {
   if (P.solids && overPanel(e)) { prevCi = -1; prevCj = -1; return; }
   const { ci, cj } = getCell(e.clientX, e.clientY);
@@ -61,17 +61,53 @@ function getTouchCell(e) {
   return getCell(t.clientX, t.clientY);
 }
 
+/* On a phone the panel is most of the screen, so leaving it out of the touch
+   path left a strip along the bottom as the only thing you could stir. A
+   touch on the panel now gets the same deal the mouse does — it stirs the
+   flow behind — but only once it's clearly sideways. Vertical is the pane
+   scrolling, and #panel's `touch-action: pan-y` (layout.css) is what stops
+   the browser claiming a sideways drag before this sees it. Controls and the
+   command line keep their touches either way. */
+const STIR_LOCK_PX = 10;
+let _panelTouch = null;     // { x, y, mode: 'pending' | 'stir' | 'scroll' }
+
+function onControl(e) {
+  return !!(e.target.closest && e.target.closest('a, button, input, .ascii-wrap, .subpanel'));
+}
+
 document.addEventListener('touchstart', e => {
-  if (overPanel(e)) return;
+  _panelTouch = null;
+  if (overPanel(e)) {
+    if (P.solids || onControl(e) || e.touches.length > 1) return;
+    const t = e.touches[0];
+    _panelTouch = { x: t.clientX, y: t.clientY, mode: 'pending' };
+    prevCi = -1; prevCj = -1;
+    return;
+  }
   const cell = getTouchCell(e);
   if (cell) { noteUserInput(); burstAt(cell.ci, cell.cj); prevCi = cell.ci; prevCj = cell.cj; }
 }, { passive: true });
 
 document.addEventListener('touchmove', e => {
+  if (_panelTouch) {
+    const t = e.touches[0];
+    if (_panelTouch.mode === 'pending') {
+      const dx = Math.abs(t.clientX - _panelTouch.x), dy = Math.abs(t.clientY - _panelTouch.y);
+      if (Math.max(dx, dy) < STIR_LOCK_PX) return;
+      _panelTouch.mode = dx > dy ? 'stir' : 'scroll';
+      if (_panelTouch.mode === 'stir') noteUserInput();
+    }
+    if (_panelTouch.mode !== 'stir') return;
+    if (e.cancelable) e.preventDefault();
+    const cell = getCell(t.clientX, t.clientY);
+    applyMove(cell.ci, cell.cj);
+    return;
+  }
   if (overPanel(e)) return;
   const cell = getTouchCell(e);
   if (cell) { applyMove(cell.ci, cell.cj); e.preventDefault(); }
 }, { passive: false });
 
-document.addEventListener('touchend',    () => { prevCi = -1; prevCj = -1; });
-document.addEventListener('touchcancel', () => { prevCi = -1; prevCj = -1; });
+function endTouch() { prevCi = -1; prevCj = -1; _panelTouch = null; }
+document.addEventListener('touchend',    endTouch);
+document.addEventListener('touchcancel', endTouch);

@@ -33,6 +33,11 @@
   user-select: text;
 }
 
+/* Vertical is the pane scrolling; sideways is left to input.js, which stirs
+   the flow behind the panel with it. Repeated on the scrollers because a
+   scroll container doesn't take its ancestors' touch-action. */
+#panel, .pane, .cmdlog { touch-action: pan-y; }
+
 /* Corner ticks. Four corners, one vocabulary, no two the same shape.
 
    Eight hairlines, same as they always were. What changed is that the arm
@@ -148,15 +153,23 @@
 }
 
 /* Landscape phone: no vertical room at all, so go back to a side panel and
-   let the flow have the rest of the width. */
-@media (max-width: 760px) and (max-height: 540px) {
+   let the flow have the rest of the width.
+
+   Keyed on height, not width. A landscape phone is 844–932px wide, which is
+   over the 760 breakpoint, so a width test sent every current phone to the
+   desktop layout — where the header and the console ate all but ~90px of the
+   pane. components.css and console.css compact the head and the console
+   under the same query, for the same reason. */
+@media (orientation: landscape) and (max-height: 540px) {
   #panel {
-    left: 10px; right: auto;
-    width: min(430px, 62vw);
+    left: max(10px, env(safe-area-inset-left, 0px));
+    right: auto;
+    width: min(460px, 56vw);
     top: 50%; bottom: auto;
     transform: translateY(-50%);
-    height: 92vh;
-    height: 92dvh;
-    padding: 12px 14px 0;
+    height: calc(100vh - 16px);
+    height: calc(100dvh - 16px);
+    max-height: none;
+    padding: 10px 14px 0;
   }
 }
